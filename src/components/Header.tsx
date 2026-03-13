@@ -1,0 +1,24 @@
+import Link from 'next/link';
+
+export default function Header() {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 max-w-screen-2xl items-center px-4 md:px-8 mx-auto justify-between">
+        <Link href="#inicio" className="flex items-center space-x-2 font-bold text-xl tracking-tight transition-colors hover:text-primary">
+          <span>Meu Portfólio</span>
+        </Link>
+        <nav className="flex items-center gap-6 text-sm font-medium">
+          <Link href="#projetos" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Projetos
+          </Link>
+          <Link href="#sobre" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Sobre Mim
+          </Link>
+          <Link href="#contato" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Contato
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}
