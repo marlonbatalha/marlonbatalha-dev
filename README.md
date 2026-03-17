@@ -13,7 +13,7 @@ pnpm install
 Rode o servidor de desenvolvimento:
 
 ```bash
-pnpm run dev
+pnpm dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000) no navegador para ver o resultado.
