@@ -41,15 +41,15 @@ export default function Projetos() {
     {
       id: 2,
       title: "API de Emissão de NFS-e",
-      description: "Serviço backend para automação de emissão de Notas Fiscais de Serviço eletrônicas com integração a prefeituras.",
-      tags: ["Node.js", "Express", "SOAP/REST", "PostgreSQL"],
+      description: "Serviço backend para automação de emissão de Notas Fiscais de Serviço eletrônicas com integração a prefeitura utilizando o padrão nacional.",
+      tags: [".NET", "C#", "SOAP/REST", "Azure SQL", "Azure Services App"],
       link: "#"
     },
     {
       id: 3,
       title: "App de Clima",
       description: "Aplicação PWA de previsão do tempo em tempo real consumindo a API OpenWeather.",
-      tags: ["PWA", "API", "React"],
+      tags: ["PWA", "API", "React Native"],
       link: "#"
     }
   ];
@@ -59,7 +59,7 @@ export default function Projetos() {
       <div className="space-y-4 mb-12 text-center md:text-left">
         <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Meus Projetos</h2>
         <p className="text-muted-foreground text-lg max-w-2xl">
-          Aqui estão alguns dos trabalhos mais recentes.
+          Aqui estão alguns dos meu projetos mais recentes.
         </p>
       </div>
 

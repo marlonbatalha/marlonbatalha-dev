@@ -8,7 +8,7 @@ export default function Hero() {
           Olá, eu sou o <span className="text-primary">Marlon</span>
         </h1>
         <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl leading-relaxed">
-          Desenvolvedor apaixonado por criar experiências web modernas, rápidas e acessíveis. Transformando ideias em código.
+          Desenvolvedor apaixonado por criar aplicaçãoes e solucionar problemas com a tecnologia de maneira rápida e acessível. Transformando ideias em código.
         </p>
       </div>
       
