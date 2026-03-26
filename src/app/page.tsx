@@ -1,16 +1,10 @@
-import Hero from '@/components/Hero';
-import  Projetos from '@/components/Projects';
-import Sobre from '@/components/About';
-import Contato from '@/components/Contact';
-import Habilidades from '@/components/Skills';
+import Terminal from '@/components/Terminal';
 
+// Estrutura de paginas do portifolio
 export default function Home() {
   return (
     <div>
-      <Hero/>
-
-      <Sobre/>
-
+      <Terminal/>
     </div>
   );
 }
