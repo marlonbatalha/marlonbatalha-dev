@@ -1,7 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+// Armazena os IPs e a quantidade de requisições para Rate Limiting
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT_MAX_REQUESTS = 3; // Máximo de 3 mensagens
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // Por janela de 1 hora
+
+function checkRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const record = rateLimitMap.get(ip);
+
+    if (!record) {
+        rateLimitMap.set(ip, { count: 1, lastReset: now });
+        return true;
+    }
+
+    if (now - record.lastReset > RATE_LIMIT_WINDOW_MS) {
+        rateLimitMap.set(ip, { count: 1, lastReset: now });
+        return true;
+    }
+
+    if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return false;
+    }
+
+    record.count += 1;
+    return true;
+}
+
 export async function POST(req: NextRequest) {
+    const forwardedFor = req.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "unknown_ip";
+
+    if (!checkRateLimit(ip)) {
+        return NextResponse.json(
+            { error: "Muitas tentativas. Tente novamente mais tarde." },
+            { status: 429 }
+        );
+    }
+
     const { nome, email, mensagem } = await req.json();
 
     if (!nome || !email || !mensagem) {

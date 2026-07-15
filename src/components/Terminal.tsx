@@ -241,8 +241,11 @@ export default function Terminal() {
           </div>
           
           <div 
-            className="flex items-center gap-2 font-bold cursor-pointer hover:text-[#888] transition-colors" 
-            onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
+            className="flex items-center gap-2 font-bold cursor-pointer hover:text-[#888] transition-colors z-50" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setLanguage(language === 'pt' ? 'en' : 'pt');
+            }}
           >
             <span className={language === 'pt' ? 'text-[#00cfff]' : 'text-[#444]'}>BR</span>
             <span className="text-[#333]">/</span>

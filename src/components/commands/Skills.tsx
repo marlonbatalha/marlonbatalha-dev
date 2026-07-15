@@ -6,8 +6,8 @@ export default function Skills() {
 
   const skills = [
     { category: t("Front-end", "Front-end"), list: ["React", "Next.js", "TypeScript", "Tailwind CSS"] },
-    { category: t("Back-end", "Back-end"), list: ["Node.js", "Express", "API Routes", "SQL"] },
-    { category: t("Ferramentas", "Tools"), list: ["Git", "GitHub", "Figma", "VS Code"] }
+    { category: t("Back-end & DB", "Back-end & DB"), list: [".NET C#", "Node.js", "SQL Server / SQL", "Express"] },
+    { category: t("Cloud & Ferramentas", "Cloud & Tools"), list: ["Azure Services", "Git / GitHub", "Figma", "VS Code"] }
   ];
 
   return (
