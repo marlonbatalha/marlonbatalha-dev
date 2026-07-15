@@ -81,7 +81,7 @@ export default function About() {
         {/* Overlay centralizado usando React Portal com animação FLIP */}
         {mounted && (isHovered || isAnimating) && createPortal(
           <div 
-            className={`fixed inset-0 z-[9999] transition-all duration-500 ${isHovered ? 'bg-black/60 backdrop-blur-sm pointer-events-auto' : 'bg-transparent backdrop-blur-none pointer-events-none'}`}
+            className={`fixed inset-0 z-[9999] transition-all duration-500 ${isHovered ? 'bg-black/60 backdrop-blur-sm pointer-events-auto sm:pointer-events-none' : 'bg-transparent backdrop-blur-none pointer-events-none'}`}
             onClick={(e) => {
               e.stopPropagation();
               handleMouseLeave();
