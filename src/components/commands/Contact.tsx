@@ -1,67 +1,31 @@
 import React from 'react';
-import { useContatoForm } from '@/hooks/useContatoForm';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Contact() {
-  const { formData, status, handleChange, handleSubmit } = useContatoForm();
+  const { t } = useLanguage();
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-md">
-      <div className="flex flex-col">
-        <label htmlFor="nome" className="text-sm mb-1 text-gray-300">Nome</label>
-        <input
-          id="nome"
-          name="nome"
-          type="text"
-          placeholder="Seu nome"
-          value={formData.nome}
-          onChange={handleChange}
-          required
-          className="bg-transparent border border-gray-600 rounded p-2 text-white focus:border-white outline-none"
-        />
-      </div>
+    <div className="flex flex-col gap-3 max-w-xl text-[#e8e8e8] terminal-line">
+      <h2 className="text-[#00cfff] font-bold mb-1">{t('Informações de Contato:', 'Contact Information:')}</h2>
+      
+      <p className="text-sm text-[#666] mb-2">
+        {t('Sinta-se à vontade para me mandar um e-mail ou conectar nas redes sociais.', 'Feel free to send me an email or connect on social media.')}
+      </p>
 
-      <div className="flex flex-col">
-        <label htmlFor="email" className="text-sm mb-1 text-gray-300">E-mail</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="seu@email.com"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="bg-transparent border border-gray-600 rounded p-2 text-white focus:border-white outline-none"
-        />
-      </div>
-
-      <div className="flex flex-col">
-        <label htmlFor="mensagem" className="text-sm mb-1 text-gray-300">Mensagem</label>
-        <textarea
-          id="mensagem"
-          name="mensagem"
-          placeholder="Escreva sua mensagem aqui..."
-          value={formData.mensagem}
-          onChange={handleChange}
-          required
-          rows={4}
-          className="bg-transparent border border-gray-600 rounded p-2 text-white focus:border-white outline-none resize-none"
-        ></textarea>
-      </div>
-
-      <button
-        type="submit"
-        disabled={status === 'enviando'}
-        className="mt-2 p-2 border border-white text-white hover:bg-white hover:text-black transition-colors rounded disabled:opacity-50"
-      >
-        {status === 'enviando' ? 'Enviando...' : 'Enviar'}
-      </button>
-
-      {status === 'sucesso' && (
-        <p className="text-green-500 mt-2 text-sm">Mensagem enviada com sucesso!</p>
-      )}
-      {status === 'erro' && (
-        <p className="text-red-500 mt-2 text-sm">Erro ao enviar mensagem. Tente novamente.</p>
-      )}
-    </form>
+      <ul className="flex flex-col gap-2 text-sm">
+        <li className="flex items-center gap-3">
+          <span className="text-[#a78bfa] w-16 text-right">Email:</span>
+          <a href="mailto:contato@marlonbatalha.dev" className="text-[#00ff88] hover:underline">contato@marlonbatalha.dev</a>
+        </li>
+        <li className="flex items-center gap-3">
+          <span className="text-[#a78bfa] w-16 text-right">LinkedIn:</span>
+          <a href="https://linkedin.com/in/marlonbatalha" target="_blank" rel="noopener noreferrer" className="text-[#36a3d9] hover:underline">linkedin.com/in/marlonbatalha</a>
+        </li>
+        <li className="flex items-center gap-3">
+          <span className="text-[#a78bfa] w-16 text-right">GitHub:</span>
+          <a href="https://github.com/marlonbatalha" target="_blank" rel="noopener noreferrer" className="text-[#e8e8e8] hover:underline">github.com/marlonbatalha</a>
+        </li>
+      </ul>
+    </div>
   );
 }

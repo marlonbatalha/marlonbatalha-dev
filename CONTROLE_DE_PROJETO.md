@@ -1,5 +1,17 @@
 # 📂 Controle do Projeto - Portfólio
 
+## 💡 Sobre o Projeto
+Este é o **Portfólio Pessoal** do desenvolvedor Marlon Batalha, construído com uma abordagem interativa e criativa: uma **Interface Temática de Terminal**. O objetivo é apresentar habilidades, experiências e projetos de forma imersiva (digitando comandos), fugindo do padrão tradicional de sites.
+
+**Stack Tecnológico Principal:**
+- **Framework:** Next.js (App Router)
+- **Linguagem:** TypeScript
+- **Estilização:** Tailwind CSS
+- **Animações:** Framer Motion
+- **Backend (API):** Next.js API Routes + NodeMailer
+
+---
+
 Este documento serve para mapearmos exatamente onde estamos, o que já foi criado, e quais são as próximas tarefas do desenvolvimento. Atualize este arquivo sempre que novas _features_ entrarem.
 
 ## ✅ Concluído
@@ -22,5 +34,7 @@ Este documento serve para mapearmos exatamente onde estamos, o que já foi criad
 
 ## 🔄 Próximos Passos (Backlog)
 - [x] Lógica de projetos baseada em arquivo de configuração mockado (`src/data/projects.ts`).
-- [ ] Adicionar micro animações usando Framer Motion aos blocos da página quando aparecerem em tela.
-- [ ] Estruturação da Autenticação via `NextAuth.js` para a área de Dashboard (área logada).
+- [x] Adicionar micro animações usando Framer Motion aos blocos da página quando aparecerem em tela.
+- [x] Estruturação da Autenticação via `NextAuth.js` para a área de Dashboard (área logada).
+
+*(O Backlog inicial foi totalmente concluído. Próximos passos podem ser definidos conforme a necessidade de evolução do portfólio).*
