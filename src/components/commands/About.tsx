@@ -113,21 +113,21 @@ export default function About() {
         )}
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#00cfff]">Marlon Batalha</h2>
-          <p className="text-[#00ff88] text-xs sm:text-sm">{t('Desenvolvedor Full Stack Jr', 'Full Stack Jr Developer')}</p>
+          <p className="text-[#00ff88] text-xs sm:text-sm">{t('Desenvolvedor Full Stack', 'Full Stack Developer')}</p>
         </div>
       </div>
       
       <div className="space-y-3 text-sm md:text-base leading-relaxed mt-2">
         <p>
           {t(
-            'Olá! Sou um desenvolvedor com mais de 1 ano de experiência, apaixonado por criar soluções rápidas e imersivas. Gosto de resolver problemas complexos com código simples e elegante.',
-            'Hello! I am a developer with over 1 year of experience, passionate about creating fast and immersive solutions. I enjoy solving complex problems with simple and elegant code.'
+            'Olá! Sou um Desenvolvedor Full Stack com mais de 1 ano e 6 meses de experiência em desenvolvimento de software e mais de 2 anos na área de tecnologia. Iniciei minha jornada como Jovem Aprendiz e, com destaque, atuei em Suporte de TI e Segurança da Informação por mais de um ano. Essa vivência me proporcionou uma base forte em hardware, software, firewalls, protocolos de rede e mitigação de ataques (DDoS/DTOs).',
+            'Hello! I am a Full Stack Developer with over 1.5 years of software development experience and over 2 years in the tech field. I started my journey as an Apprentice (Jovem Aprendiz) and stood out, moving into IT Support and Information Security for over a year. This gave me a solid foundation in hardware, software, firewalls, network protocols, and attack mitigation (DDoS/DTOs).'
           )}
         </p>
         <p>
           {t(
-            'Atuo tanto no ecossistema JavaScript/TypeScript (React, Next.js, Node.js) quanto com back-end estruturado em .NET C#. Além disso, possuo experiência no gerenciamento de bancos de dados SQL e arquitetura de nuvem utilizando Azure Services.',
-            'I work with both the JavaScript/TypeScript ecosystem (React, Next.js, Node.js) and structured back-ends in .NET C#. Additionally, I have experience managing SQL databases and cloud architecture using Azure Services.'
+            'Posteriormente, recebi a oportunidade de ingressar na equipe de desenvolvimento da mesma empresa. Atualmente, faço parte do ambiente completo de desenvolvimento dos sistemas que atuo: desde o frontend e backend, até DevOps, Cloud, Security e CI/CD (GitHub Actions). Tenho orgulho de ter criado sistemas robustos como CRMs, plataformas de gestão de leads e arquiteturas para disparo de e-mails em massa utilizando Azure Services (SQL, Email Communication Services, entre outros).',
+            'Later, I earned the opportunity to join the development team at the same company. Currently, I am involved in the complete lifecycle of the systems I work on: from frontend and backend to DevOps, Cloud, Security, and CI/CD (GitHub Actions). I have built robust systems like CRMs, lead management platforms, and mass email architectures using Azure Services (SQL, Email Communication Services, and more).'
           )}
         </p>
       </div>
