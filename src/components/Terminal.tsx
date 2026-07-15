@@ -185,6 +185,11 @@ export default function Terminal() {
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
       setHistory([{ out: commandRegistry['whoami'](language) }]);
+      if (inputMode !== 'normal') {
+        setInputMode('normal');
+        setContactForm({ nome: '', email: '', mensagem: '' });
+      }
+      setInput('');
     } else if (e.key === 'Tab') {
       e.preventDefault();
       const availableCommands = getAvailableCommands(language);

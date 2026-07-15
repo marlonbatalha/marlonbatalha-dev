@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Fundo Escuro do Terminal -->
+  <rect width="256" height="256" rx="56" fill="#0d0d0d"/>
+  
+  <!-- Símbolo ">" -->
+  <polyline points="56,76 112,124 56,172" fill="none" stroke="#00ff88" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Cursor "_" -->
+  <rect x="136" y="160" width="72" height="28" fill="#00ff88" rx="8"/>
+</svg>

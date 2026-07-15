@@ -19,6 +19,9 @@ const pressStart2P = Press_Start_2P({
 export const metadata: Metadata = {
   title: "Marlon Batalha",
   description: "Marlon Batalha",
+  icons: {
+    icon: "/image/icon.svg",
+  },
 };
 
 export default function RootLayout({
