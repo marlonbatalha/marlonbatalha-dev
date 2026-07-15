@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { commandRegistry, getAvailableCommands } from './commands/registry'
+import { TerminalSpinner } from './TerminalSpinner'
 import { useLanguage } from '@/context/LanguageContext'
 
 type HistoryEntry = {
@@ -18,6 +19,11 @@ export default function Terminal() {
   ])
   const [input, setInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
+  const [commandHistory, setCommandHistory] = useState<string[]>([])
+  
+  type InputMode = 'normal' | 'contact_name' | 'contact_email' | 'contact_message' | 'contact_submitting'
+  const [inputMode, setInputMode] = useState<InputMode>('normal')
+  const [contactForm, setContactForm] = useState({ nome: '', email: '', mensagem: '' })
   
   const inputRef = useRef<HTMLInputElement | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
@@ -34,13 +40,20 @@ export default function Terminal() {
         container.scrollTop = container.scrollHeight;
       }
     }
-  }, [history])
+  }, [history, inputMode])
+
+  useEffect(() => {
+    if (inputMode !== 'contact_submitting') {
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
+  }, [inputMode])
 
   async function runCommand(raw: string) {
     const cmd = raw.trim()
     if (!cmd) return
     const key = cmd.split(' ')[0].toLowerCase()
     
+    setCommandHistory(prev => [...prev, cmd])
     appendHistory({ cmd: raw, out: null })
 
     // Validação estrita de idioma: só permite o comando se for do idioma atual
@@ -52,7 +65,22 @@ export default function Terminal() {
 
     // Comandos nativos do terminal que não precisam de registry
     if (key === 'clear' || key === 'limpar') {
-      setHistory([])
+      setHistory([{ out: commandRegistry['whoami'](language) }])
+      return
+    }
+
+    if (key === 'contato' || key === 'contact') {
+      const handler = commandRegistry[key]
+      try {
+        const result = await handler(language)
+        if (result !== null) appendHistory({ out: result })
+        
+        appendHistory({ out: <div className="text-[#a78bfa] font-bold terminal-line mt-4 mb-2">{t('[ INICIANDO MODO DE MENSAGEM DIRETA ]', '[ INITIATING DIRECT MESSAGE MODE ]')}</div> })
+        appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu nome:', 'What is your name:')}</div> })
+        setInputMode('contact_name')
+      } catch (err) {
+        appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t('Erro ao executar', 'Error executing')}: {(err as Error).message}</span> })
+      }
       return
     }
 
@@ -70,9 +98,62 @@ export default function Terminal() {
     setHistory((h) => [...h.filter(Boolean), entry])
   }
 
-  function onSubmit(e?: React.FormEvent) {
+  async function onSubmit(e?: React.FormEvent) {
     e?.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() && inputMode === 'normal') return
+    
+    const cmd = input.trim()
+
+    if (inputMode === 'contact_name') {
+      if (!cmd) return;
+      setContactForm(prev => ({ ...prev, nome: cmd }))
+      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu nome:', 'What is your name:')} <span className="text-[#00cfff]">{cmd}</span></div> })
+      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line mt-2"><span className="text-[#00ff88]">?</span> {t('Qual é o seu email:', 'What is your email:')}</div> })
+      setInputMode('contact_email')
+      setInput('')
+      return
+    }
+
+    if (inputMode === 'contact_email') {
+      if (!cmd || !cmd.includes('@')) {
+        appendHistory({ out: <div className="text-[#ff5f56] terminal-line">{t('Email inválido. Tente novamente.', 'Invalid email. Try again.')}</div> })
+        return;
+      }
+      setContactForm(prev => ({ ...prev, email: cmd }))
+      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu email:', 'What is your email:')} <span className="text-[#00cfff]">{cmd}</span></div> })
+      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line mt-2"><span className="text-[#00ff88]">?</span> {t('Digite sua mensagem:', 'Enter your message:')}</div> })
+      setInputMode('contact_message')
+      setInput('')
+      return
+    }
+
+    if (inputMode === 'contact_message') {
+      if (!cmd) return;
+      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Mensagem:', 'Message:')} <span className="text-[#00cfff]">{cmd}</span></div> })
+      
+      setInputMode('contact_submitting')
+      
+      try {
+        const res = await fetch('/api/contato', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...contactForm, mensagem: cmd })
+        });
+        if (res.ok) {
+          appendHistory({ out: <div className="text-[#00ff88] terminal-line font-bold mt-2">{t('[✓] Mensagem enviada com sucesso! Voltando ao terminal padrão...', '[✓] Message sent successfully! Returning to default terminal...')}</div> })
+        } else {
+          appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
+        }
+      } catch (e) {
+        appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
+      }
+      
+      setInputMode('normal')
+      setContactForm({ nome: '', email: '', mensagem: '' })
+      setInput('')
+      return
+    }
+
     runCommand(input)
     setInput('')
     setHistoryIndex(-1)
@@ -80,15 +161,13 @@ export default function Terminal() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const commandsOnly = history.filter(h => h.cmd).map(h => h.cmd as string);
-
     if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (commandsOnly.length > 0) {
+      if (commandHistory.length > 0) {
         const nextIndex = historyIndex + 1;
-        if (nextIndex < commandsOnly.length) {
+        if (nextIndex < commandHistory.length) {
           setHistoryIndex(nextIndex);
-          setInput(commandsOnly[commandsOnly.length - 1 - nextIndex]);
+          setInput(commandHistory[commandHistory.length - 1 - nextIndex]);
         }
       }
     } else if (e.key === 'ArrowDown') {
@@ -96,14 +175,25 @@ export default function Terminal() {
       if (historyIndex > 0) {
         const nextIndex = historyIndex - 1;
         setHistoryIndex(nextIndex);
-        setInput(commandsOnly[commandsOnly.length - 1 - nextIndex]);
+        setInput(commandHistory[commandHistory.length - 1 - nextIndex]);
       } else if (historyIndex === 0) {
         setHistoryIndex(-1);
         setInput('');
       }
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      if (inputMode !== 'normal') {
+        appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Operação cancelada. Voltando ao terminal padrão...', '[✖] Operation cancelled. Returning to default terminal...')}</div> })
+        setInputMode('normal');
+        setContactForm({ nome: '', email: '', mensagem: '' });
+        setInput('');
+      } else {
+        appendHistory({ cmd: input + '^C', out: null });
+        setInput('');
+      }
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
-      setHistory([]);
+      setHistory([{ out: commandRegistry['whoami'](language) }]);
     } else if (e.key === 'Tab') {
       e.preventDefault();
       const availableCommands = getAvailableCommands(language);
@@ -186,26 +276,38 @@ export default function Terminal() {
             ))}
           </div>
 
-          <form onSubmit={onSubmit} className="flex items-center gap-2 mt-4 bg-[#141414] border border-[#2a2a2a] p-2.5 rounded-lg text-sm md:text-base shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10 relative terminal-line transition-all duration-300 focus-within:border-[#333] focus-within:shadow-[0_0_8px_rgba(0,255,136,0.05)]">
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)]">marlonbatalha</span>
-              <span className="text-[#666]">@</span>
-              <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">portfolio</span>
-              <span className="text-[#666]">:</span>
-              <span className="text-[#a78bfa] font-bold">~</span>
-              <span className="text-[#666]">$</span>
+          {inputMode === 'contact_submitting' ? (
+            <div className="mt-4 px-2">
+               <TerminalSpinner text={t('ENVIANDO VIA SMTP', 'SENDING VIA SMTP')} />
             </div>
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent border-none outline-none text-[#e8e8e8] caret-[#00ff88]"
-              autoComplete="off"
-              spellCheck={false}
-              aria-label="Entrada de comando"
-            />
-          </form>
+          ) : (
+            <form onSubmit={onSubmit} className="flex items-center gap-2 mt-4 bg-[#141414] border border-[#2a2a2a] p-2.5 rounded-lg text-sm md:text-base shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10 relative terminal-line transition-all duration-300 focus-within:border-[#333] focus-within:shadow-[0_0_8px_rgba(0,255,136,0.05)]">
+              <div className="flex items-center gap-2 shrink-0">
+                {inputMode === 'normal' ? (
+                  <>
+                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)]">marlonbatalha</span>
+                    <span className="text-[#666]">@</span>
+                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">portfolio</span>
+                    <span className="text-[#666]">:</span>
+                    <span className="text-[#a78bfa] font-bold">~</span>
+                    <span className="text-[#666]">$</span>
+                  </>
+                ) : (
+                  <span className="text-[#00ff88] font-bold">{'>'}</span>
+                )}
+              </div>
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1 bg-transparent border-none outline-none text-[#e8e8e8] caret-[#00ff88]"
+                autoComplete="off"
+                spellCheck={false}
+                aria-label="Entrada de comando"
+              />
+            </form>
+          )}
           <div ref={bottomRef} />
         </div>
 
