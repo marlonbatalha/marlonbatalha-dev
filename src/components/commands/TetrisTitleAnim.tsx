@@ -28,7 +28,7 @@ const COLORS: Record<ShapeType, string> = {
 // Constantes de tempo (segundos) — únicas fontes de verdade
 const FALL_DURATION = 0.8;
 const FADE_DURATION = 1.0;
-const GAP_BETWEEN_SEQUENCES = 1.5;
+const GAP_BETWEEN_SEQUENCES = 1.0;
 
 interface PieceDef {
   shape: ShapeType;
@@ -47,7 +47,7 @@ interface Sequence {
 // e o total (CYCLE) é derivado automaticamente logo depois.
 const SEQUENCES: Sequence[] = [
   {
-    holdBeforeFade: 2.3,
+    holdBeforeFade: 2.1,
     pieces: [
       { shape: 'I', col: 0, row: 3, offset: 0 },
       { shape: 'L', col: 3, row: 4, offset: 0.6 },
@@ -57,7 +57,7 @@ const SEQUENCES: Sequence[] = [
     ],
   },
   {
-    holdBeforeFade: 2.3,
+    holdBeforeFade: 2.1,
     pieces: [
       { shape: 'I', col: 0, row: 3, offset: 0 },
       { shape: 'L', col: 1, row: 4, offset: 0.6 },
@@ -67,7 +67,7 @@ const SEQUENCES: Sequence[] = [
     ],
   },
   {
-    holdBeforeFade: 2.3,
+    holdBeforeFade: 2.1,
     pieces: [
       { shape: 'S', col: 0, row: 5, offset: 0 },
       { shape: 'L', col: 3, row: 4, offset: 0.6 },
