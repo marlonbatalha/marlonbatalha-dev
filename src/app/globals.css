@@ -52,3 +52,114 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Glitch Effect Variables */
+:root {
+  --glitch-offset: 4px;
+  --glitch-duration: 3s;
+}
+
+[data-intensity="subtle"] {
+  --glitch-offset: 2px;
+  --glitch-duration: 4s;
+}
+
+[data-intensity="intense"] {
+  --glitch-offset: 8px;
+  --glitch-duration: 1.5s;
+}
+
+/* Glitch Effect Base */
+.glitch-text-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text-wrapper::before,
+.glitch-text-wrapper::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch-text-wrapper::before {
+  color: #00cfff;
+  z-index: -1;
+  animation: glitch-anim-1 var(--glitch-duration) infinite linear alternate-reverse;
+}
+
+.glitch-text-wrapper::after {
+  color: #ff5f57;
+  z-index: -2;
+  animation: glitch-anim-2 var(--glitch-duration) infinite linear alternate-reverse;
+}
+
+/* 
+ * The animations only show the pseudo-elements for a very short duration of the cycle
+ * to simulate random glitches instead of constant vibration.
+ */
+@keyframes glitch-anim-1 {
+  0%, 90% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+  92% {
+    clip-path: inset(15% 0 65% 0);
+    transform: translate(calc(var(--glitch-offset) * -1), 0);
+  }
+  94% {
+    clip-path: inset(10% 0 70% 0);
+    transform: translate(var(--glitch-offset), 0);
+  }
+  96% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+  98% {
+    clip-path: inset(30% 0 45% 0);
+    transform: translate(calc(var(--glitch-offset) * -1), 0);
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0%, 90% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+  92% {
+    clip-path: inset(60% 0 20% 0);
+    transform: translate(var(--glitch-offset), 0);
+  }
+  94% {
+    clip-path: inset(55% 0 25% 0);
+    transform: translate(calc(var(--glitch-offset) * -1), 0);
+  }
+  96% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+  98% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translate(var(--glitch-offset), 0);
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-text-wrapper::before,
+  .glitch-text-wrapper::after {
+    animation: none !important;
+    display: none !important;
+  }
+}

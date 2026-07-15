@@ -19,6 +19,7 @@ export default function Terminal() {
   const [input, setInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [commandHistory, setCommandHistory] = useState<string[]>([])
+  const [cursorPos, setCursorPos] = useState(0)
   
   type InputMode = 'normal' | 'contact_name' | 'contact_email' | 'contact_message' | 'contact_submitting'
   const [inputMode, setInputMode] = useState<InputMode>('normal')
@@ -49,24 +50,30 @@ export default function Terminal() {
   async function runCommand(raw: string) {
     const cmd = raw.trim()
     if (!cmd) return
-    const key = cmd.split(' ')[0].toLowerCase()
+    const lowerCmd = cmd.toLowerCase()
     
     setCommandHistory(prev => [...prev, cmd])
     appendHistory({ cmd: raw, out: null })
 
-    const validCommands = getAvailableCommands(language);
-    if (!validCommands.includes(key)) {
-      appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t(`Comando não encontrado: ${key}. Digite 'ajuda' para opções.`, `Command not found: ${key}. Type 'help' for options.`)}</span> })
+    let keyToUse = lowerCmd
+    if (!commandRegistry[keyToUse]) {
+        keyToUse = lowerCmd.split(' ')[0]
+    }
+
+    const isSpecialCommand = keyToUse === 'clear' || keyToUse === 'limpar';
+
+    if (!commandRegistry[keyToUse] && !isSpecialCommand) {
+      appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t(`Comando não encontrado: ${keyToUse}. Digite 'ajuda' para opções.`, `Command not found: ${keyToUse}. Type 'help' for options.`)}</span> })
       return
     }
 
-    if (key === 'clear' || key === 'limpar') {
+    if (keyToUse === 'clear' || keyToUse === 'limpar') {
       setHistory([{ out: commandRegistry['whoami'](language) }])
       return
     }
 
-    if (key === 'contato' || key === 'contact') {
-      const handler = commandRegistry[key]
+    if (keyToUse === 'contato' || keyToUse === 'contact') {
+      const handler = commandRegistry[keyToUse]
       try {
         const result = await handler(language)
         if (result !== null) appendHistory({ out: result })
@@ -80,7 +87,7 @@ export default function Terminal() {
       return
     }
 
-    const handler = commandRegistry[key]
+    const handler = commandRegistry[keyToUse]
     try {
       const result = await handler(language)
       if (result !== null) appendHistory({ out: result })
@@ -300,16 +307,35 @@ export default function Terminal() {
                   <span className="text-[#00ff88] font-bold">{'>'}</span>
                 )}
               </div>
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-1 bg-transparent border-none outline-none text-[#e8e8e8] caret-[#00ff88]"
-                autoComplete="off"
-                spellCheck={false}
-                aria-label="Entrada de comando"
-              />
+              <div className="relative flex-1 flex items-center h-full min-h-[1.5em] overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none flex items-center whitespace-pre text-[#e8e8e8]">
+                  <span>{input.slice(0, cursorPos)}</span>
+                  <span className="text-black bg-[#00ff88] animate-[pulse_1s_steps(2,start)_infinite] inline-flex justify-center items-center min-w-[0.6em] h-[1.2em]">
+                    {input.slice(cursorPos, cursorPos + 1) || ' '}
+                  </span>
+                  <span>{input.slice(cursorPos + 1)}</span>
+                </div>
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    setCursorPos(e.target.selectionStart || 0);
+                  }}
+                  onSelect={(e) => setCursorPos(e.currentTarget.selectionStart || 0)}
+                  onKeyUp={(e) => setCursorPos(e.currentTarget.selectionStart || 0)}
+                  onClick={(e) => setCursorPos(e.currentTarget.selectionStart || 0)}
+                  onKeyDown={(e) => {
+                    handleKeyDown(e);
+                    // Defer cursor update to let React process the history navigation
+                    setTimeout(() => setCursorPos(inputRef.current?.selectionStart || input.length), 10);
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-text z-20"
+                  autoComplete="off"
+                  spellCheck={false}
+                  aria-label="Entrada de comando"
+                />
+              </div>
             </form>
           )}
           <div ref={bottomRef} />

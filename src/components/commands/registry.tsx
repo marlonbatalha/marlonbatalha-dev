@@ -12,23 +12,47 @@ export const getAvailableCommands = (lang: 'pt' | 'en') => {
 };
 
 import { useLanguage } from '@/context/LanguageContext';
+import TypewriterText from '../TypewriterText';
+import { Sudo, Hack, Coffee, Neofetch } from './EasterEggs';
 
 const Help = () => {
     const { t } = useLanguage();
+    
+    const lines = [
+        t('Comandos disponíveis:', 'Available commands:'),
+        '',
+        `${t('sobre', 'about').padEnd(12)} - ${t('Saiba mais sobre mim', 'Learn more about me')}`,
+        `${t('projetos', 'projects').padEnd(12)} - ${t('Veja meus projetos', 'See my projects')}`,
+        `${t('habilidades', 'skills').padEnd(12)} - ${t('Minhas habilidades técnicas', 'My technical skills')}`,
+        `${t('contato', 'contact').padEnd(12)} - ${t('Formas de me encontrar', 'Ways to find me')}`,
+        `whoami       - ${t('Resumo rápido', 'Quick summary')}`,
+        `ls           - ${t('Lista diretórios', 'List directories')}`,
+        `clear        - ${t('Limpa o terminal', 'Clear the terminal')}`
+    ];
+
+    const renderLine = (line: string, index: number) => {
+        const fullLine = lines[index];
+        if (index === 0) {
+            return <span className="text-[#00cfff] font-bold">{line}</span>;
+        }
+        if (index > 1 && fullLine.trim() !== '') {
+            const separatorIndex = fullLine.indexOf(' - ');
+            if (separatorIndex !== -1) {
+                const cmdPart = line.substring(0, separatorIndex);
+                const descPart = line.substring(separatorIndex);
+                return (
+                    <span className="ml-2">
+                        <span className="text-[#00ff88]">{cmdPart}</span>{descPart}
+                    </span>
+                );
+            }
+        }
+        return line;
+    };
+
     return (
         <div className="terminal-line text-[#e8e8e8]">
-            <div className="text-[#00cfff] font-bold mb-2">
-                {t('Comandos disponíveis:', 'Available commands:')}
-            </div>
-            <ul className="flex flex-col gap-1 ml-2">
-                <li><span className="text-[#00ff88]">{t('sobre', 'about')}</span>    - {t('Saiba mais sobre mim', 'Learn more about me')}</li>
-                <li><span className="text-[#00ff88]">{t('projetos', 'projects')}</span> - {t('Veja meus projetos', 'See my projects')}</li>
-                <li><span className="text-[#00ff88]">{t('habilidades', 'skills')}</span>   - {t('Minhas habilidades técnicas', 'My technical skills')}</li>
-                <li><span className="text-[#00ff88]">{t('contato', 'contact')}</span>  - {t('Formas de me encontrar', 'Ways to find me')}</li>
-                <li><span className="text-[#00ff88]">whoami</span>   - {t('Resumo rápido', 'Quick summary')}</li>
-                <li><span className="text-[#00ff88]">ls</span>       - {t('Lista diretórios', 'List directories')}</li>
-                <li><span className="text-[#00ff88]">clear</span>    - {t('Limpa o terminal', 'Clear the terminal')}</li>
-            </ul>
+            <TypewriterText lines={lines} renderLine={renderLine} lineDelay={100} />
         </div>
     );
 };
@@ -57,4 +81,11 @@ export const commandRegistry: Record<string, (lang: 'pt' | 'en') => React.ReactN
     // Extras
     whoami: () => <Whoami />,
     ls: () => <Ls />,
+
+    // Easter Eggs (not listed in help)
+    sudo: () => <Sudo />,
+    'sudo rm -rf /': () => <Sudo />,
+    hack: () => <Hack />,
+    coffee: () => <Coffee />,
+    neofetch: () => <Neofetch />,
 };

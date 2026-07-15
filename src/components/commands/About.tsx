@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import TypewriterText from '../TypewriterText';
+import GlitchText from '../GlitchText';
 
 export default function About() {
   const { t } = useLanguage();
@@ -127,24 +129,31 @@ export default function About() {
           document.body
         )}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#00cfff]">Marlon Batalha</h2>
+          <GlitchText 
+            as="h2" 
+            text="Marlon Batalha" 
+            className="text-xl sm:text-2xl font-bold text-[#00cfff]" 
+            intensity="subtle"
+            triggerOnHover={true}
+          />
           <p className="text-[#00ff88] text-xs sm:text-sm">{t('Desenvolvedor Full Stack', 'Full Stack Developer')}</p>
         </div>
       </div>
       
-      <div className="space-y-3 text-sm md:text-base leading-relaxed mt-2">
-        <p>
-          {t(
-            'Olá! Sou um Desenvolvedor Full Stack com mais de 1 ano e 6 meses de experiência em desenvolvimento de software e mais de 2 anos na área de tecnologia. Iniciei minha jornada como Jovem Aprendiz e, com destaque, atuei em Suporte de TI e Segurança da Informação por mais de um ano. Essa vivência me proporcionou uma base forte em hardware, software, firewalls, protocolos de rede e mitigação de ataques (DDoS/DTOs).',
-            'Hello! I am a Full Stack Developer with over 1.5 years of software development experience and over 2 years in the tech field. I started my journey as an Apprentice (Jovem Aprendiz) and stood out, moving into IT Support and Information Security for over a year. This gave me a solid foundation in hardware, software, firewalls, network protocols, and attack mitigation (DDoS/DTOs).'
-          )}
-        </p>
-        <p>
-          {t(
-            'Posteriormente, recebi a oportunidade de ingressar na equipe de desenvolvimento da mesma empresa. Atualmente, faço parte do ambiente completo de desenvolvimento dos sistemas que atuo: desde o frontend e backend, até DevOps, Cloud, Security e CI/CD (GitHub Actions). Tenho orgulho de ter criado sistemas robustos como CRMs, plataformas de gestão de leads e arquiteturas para disparo de e-mails em massa utilizando Azure Services (SQL, Email Communication Services, entre outros).',
-            'Later, I earned the opportunity to join the development team at the same company. Currently, I am involved in the complete lifecycle of the systems I work on: from frontend and backend to DevOps, Cloud, Security, and CI/CD (GitHub Actions). I have built robust systems like CRMs, lead management platforms, and mass email architectures using Azure Services (SQL, Email Communication Services, and more).'
-          )}
-        </p>
+      <div className="text-sm md:text-base leading-relaxed mt-2">
+        <TypewriterText 
+          className="gap-3"
+          lines={[
+            t(
+              'Olá! Sou um Desenvolvedor Full Stack com mais de 1 ano e 6 meses de experiência em desenvolvimento de software e mais de 2 anos na área de tecnologia. Iniciei minha jornada como Jovem Aprendiz e, com destaque, atuei em Suporte de TI e Segurança da Informação por mais de um ano. Essa vivência me proporcionou uma base forte em hardware, software, firewalls, protocolos de rede e mitigação de ataques (DDoS/DTOs).',
+              'Hello! I am a Full Stack Developer with over 1.5 years of software development experience and over 2 years in the tech field. I started my journey as an Apprentice (Jovem Aprendiz) and stood out, moving into IT Support and Information Security for over a year. This gave me a solid foundation in hardware, software, firewalls, network protocols, and attack mitigation (DDoS/DTOs).'
+            ),
+            t(
+              'Posteriormente, recebi a oportunidade de ingressar na equipe de desenvolvimento da mesma empresa. Atualmente, faço parte do ambiente completo de desenvolvimento dos sistemas que atuo: desde o frontend e backend, até DevOps, Cloud, Security e CI/CD (GitHub Actions). Tenho orgulho de ter criado sistemas robustos como CRMs, plataformas de gestão de leads e arquiteturas para disparo de e-mails em massa utilizando Azure Services (SQL, Email Communication Services, entre outros).',
+              'Later, I earned the opportunity to join the development team at the same company. Currently, I am involved in the complete lifecycle of the systems I work on: from frontend and backend to DevOps, Cloud, Security, and CI/CD (GitHub Actions). I have built robust systems like CRMs, lead management platforms, and mass email architectures using Azure Services (SQL, Email Communication Services, and more).'
+            )
+          ]} 
+        />
       </div>
     </div>
   );
