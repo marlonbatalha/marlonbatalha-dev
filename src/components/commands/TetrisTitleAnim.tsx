@@ -32,28 +32,42 @@ interface PieceConfig {
   col: number; 
   row: number; 
   delay: number; 
+  fadeAt: number; // Momento (em segundos) que a peça desaparece para a próxima montagem
 }
 
-// O "level design" corrigido com física e encaixes perfeitos
+// O "level design" com 3 variações de montagem que se alternam
 const PIECES: PieceConfig[] = [
-  { shape: 'I', col: 0, row: 3, delay: 0 },
-  { shape: 'L', col: 3, row: 4, delay: 0.6 },
-  { shape: 'O', col: 1, row: 5, delay: 1.2 },
-  { shape: 'S', col: 4, row: 4, delay: 1.8 },
-  { shape: 'T', col: 1, row: 3, delay: 2.4 },
+  // Montagem 1 (0s a 6s)
+  { shape: 'I', col: 0, row: 3, delay: 0, fadeAt: 5.0 },
+  { shape: 'L', col: 3, row: 4, delay: 0.6, fadeAt: 5.0 },
+  { shape: 'O', col: 1, row: 5, delay: 1.2, fadeAt: 5.0 },
+  { shape: 'S', col: 4, row: 4, delay: 1.8, fadeAt: 5.0 },
+  { shape: 'T', col: 1, row: 3, delay: 2.4, fadeAt: 5.0 },
+
+  // Montagem 2 (6s a 12s)
+  { shape: 'I', col: 0, row: 3, delay: 6.0, fadeAt: 11.0 },
+  { shape: 'L', col: 1, row: 4, delay: 6.6, fadeAt: 11.0 },
+  { shape: 'S', col: 3, row: 5, delay: 7.2, fadeAt: 11.0 },
+  { shape: 'O', col: 2, row: 4, delay: 7.8, fadeAt: 11.0 },
+  { shape: 'T', col: 3, row: 3, delay: 8.4, fadeAt: 11.0 },
+
+  // Montagem 3 (12s a 18s)
+  { shape: 'S', col: 0, row: 5, delay: 12.0, fadeAt: 17.0 },
+  { shape: 'L', col: 3, row: 4, delay: 12.6, fadeAt: 17.0 },
+  { shape: 'I', col: 6, row: 3, delay: 13.2, fadeAt: 17.0 },
+  { shape: 'O', col: 4, row: 4, delay: 13.8, fadeAt: 17.0 },
+  { shape: 'T', col: 1, row: 3, delay: 14.4, fadeAt: 17.0 },
 ];
 
-const CYCLE = 6; // Tempo total do loop em segundos (agora um pouco mais rápido)
+const CYCLE = 18; // Tempo total do loop em segundos (3 ciclos de 6s)
 const FALL_DURATION = 0.8; // Tempo de queda de cada peça
-const FADE_START = 5.0; // Quando todas começam a sumir juntas
-const FADE_END = 5.5; // Quando desaparecem completamente
 
 const generateCSS = () => {
   const piecesCSS = PIECES.map((piece, i) => {
     const pStart = (piece.delay / CYCLE) * 100;
     const pDropEnd = ((piece.delay + FALL_DURATION) / CYCLE) * 100;
-    const pFadeStart = (FADE_START / CYCLE) * 100;
-    const pFadeEnd = (FADE_END / CYCLE) * 100;
+    const pFadeStart = (piece.fadeAt / CYCLE) * 100;
+    const pFadeEnd = ((piece.fadeAt + 0.5) / CYCLE) * 100;
 
     let css = `
       .piece-${i} {
@@ -63,11 +77,11 @@ const generateCSS = () => {
       @keyframes fall-${i} {
         0% {
           transform: translateY(-${BOARD_HEIGHT * UNIT * 1.5}px);
-          opacity: ${i === 0 ? 1 : 0};
+          opacity: ${piece.delay === 0 ? 1 : 0};
         }
     `;
 
-    if (i > 0) {
+    if (piece.delay > 0) {
       css += `
         ${(pStart - 0.1).toFixed(2)}% {
           transform: translateY(-${BOARD_HEIGHT * UNIT * 1.5}px);
