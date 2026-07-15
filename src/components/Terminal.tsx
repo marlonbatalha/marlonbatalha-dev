@@ -134,6 +134,9 @@ export default function Terminal() {
       setInputMode('contact_submitting')
       
       try {
+        // Delay artificial de 1.5s para a animação do spinner ser visível
+        await new Promise(r => setTimeout(r, 1500));
+        
         const res = await fetch('/api/contato', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
