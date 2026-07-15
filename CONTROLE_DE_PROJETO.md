@@ -4,26 +4,23 @@ Este documento serve para mapearmos exatamente onde estamos, o que já foi criad
 
 ## ✅ Concluído
 
-- **Estruturação SPA (Single Page Application)**
-  - Mapeamento das seções em componentes (`Hero`, `Projetos`, `Sobre`, `Contato`) renderizados em _scroll_ na `page.tsx`.
-  - Navegação suave através de links âncora do `Header.tsx`.
+- **Estruturação Temática de Terminal**
+  - Mudança da arquitetura inicial (SPA com scroll) para uma interface imersiva de terminal em `page.tsx` usando o componente `<Terminal/>`.
+  - Comandos interativos (`about`, `projects`, `skills`, `contact`, `clear`, `help`) que carregam os componentes correspondentes.
 - **Ajustes de SEO e Contexto**
   - Metadados atualizados em `layout.tsx` para refletir o título "Desenvolvedor Full Stack Jr".
-  - Textos de introdução em `Sobre.tsx` e descrições dos `Projetos.tsx` refinados e detalhadamente formatados.
+  - Textos refinados e formatados para os componentes.
 - **Formulário de Contato Dinâmico**
-  - Transformado de um simples link "mailto" para um `<form>` complexo gerenciado por estado.
-  - Campos adicionados: Nome, E-mail, Mensagem.
-  - Implementação de Feedback visual (sucesso / erro).
-  - Primeira versão da camada de Backend nas rotas do Next.js (`src/app/api/contato/routs.ts`).
+  - Criação de um `<form>` completo no componente `Contact.tsx` gerenciado pelo hook `useContatoForm`.
+  - Implementação de Feedback visual e desativação do botão durante o envio (sucesso, enviando, erro).
+  - Camada de Backend configurada na rota do Next.js (`src/app/api/contato/route.ts`).
+  - Configuração do NodeMailer integrada para uso de SMTP (Gmail) consumindo variáveis de ambiente.
 
 ## ⚠️ Pontos de Atenção Imediata (Corrigir antes de prosseguir)
 
-- [ ] **Nome do arquivo da rota de API:** O Next.js (App router) exige que as rotas se chamem obrigatoriamente `route.ts`. O arquivo foi criado como `routs.ts`. Precisamos renomeá-lo.
-- [ ] **Hook `useContatoForm` ausente:** O componente de contato importou o hook `useContatoForm`, porém um arquivo com sintaxe muito parecida foi deletado. Precisamos garantir que esse _hook_ existe e está funcionando (ou recriá-lo).
+- Nenhuma pendência crítica no momento. 🎉
 
 ## 🔄 Próximos Passos (Backlog)
-
-- [ ] Configurar envio real de e-mails usando NodeMailer ou Resend no backend da API de contato.
-- [ ] Preparar lógica de Banco de Dados ou Arquivo de configuração base para puxar projetos de um CMS.
+- [x] Lógica de projetos baseada em arquivo de configuração mockado (`src/data/projects.ts`).
 - [ ] Adicionar micro animações usando Framer Motion aos blocos da página quando aparecerem em tela.
 - [ ] Estruturação da Autenticação via `NextAuth.js` para a área de Dashboard (área logada).
