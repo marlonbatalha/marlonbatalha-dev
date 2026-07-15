@@ -3,6 +3,7 @@ import { JetBrains_Mono, Press_Start_2P } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -37,6 +38,7 @@ export default function RootLayout({
           {children}
           <Footer />
         </LanguageProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
