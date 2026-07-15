@@ -3,75 +3,129 @@
 import React from 'react';
 
 // Configurações do grid
-const UNIT = 14; 
-const BOARD_WIDTH = 7; 
-const BOARD_HEIGHT = 7; 
+const UNIT = 14;
+const BOARD_WIDTH = 7;
+const BOARD_HEIGHT = 7;
 
 type ShapeType = 'I' | 'O' | 'T' | 'S' | 'L';
 
-// Coordenadas relativas (x, y) de cada bloco que forma a peça
 const SHAPES: Record<ShapeType, { x: number; y: number }[]> = {
-  I: [{x:0, y:0}, {x:0, y:1}, {x:0, y:2}, {x:0, y:3}],
-  O: [{x:0, y:0}, {x:1, y:0}, {x:0, y:1}, {x:1, y:1}],
-  T: [{x:0, y:0}, {x:1, y:0}, {x:2, y:0}, {x:1, y:1}],
-  S: [{x:1, y:0}, {x:2, y:0}, {x:0, y:1}, {x:1, y:1}],
-  L: [{x:0, y:0}, {x:0, y:1}, {x:0, y:2}, {x:1, y:2}]
+  I: [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }, { x: 0, y: 3 }],
+  O: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+  T: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }, { x: 1, y: 1 }],
+  S: [{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+  L: [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }, { x: 1, y: 2 }],
 };
 
-// Cores neon do tema
 const COLORS: Record<ShapeType, string> = {
-  I: '#00cfff', // Cyan
-  O: '#ffeb3b', // Amarelo
-  T: '#a78bfa', // Roxo
-  S: '#00ff88', // Verde (brand)
-  L: '#ff5f57'  // Vermelho
+  I: '#00cfff',
+  O: '#ffeb3b',
+  T: '#a78bfa',
+  S: '#00ff88',
+  L: '#ff5f57',
 };
 
-interface PieceConfig {
+// Constantes de tempo (segundos) — únicas fontes de verdade
+const FALL_DURATION = 0.8;
+const FADE_DURATION = 1.0;
+const GAP_BETWEEN_SEQUENCES = 1.5;
+
+interface PieceDef {
   shape: ShapeType;
-  col: number; 
-  row: number; 
-  delay: number; 
-  fadeAt: number; // Momento (em segundos) que a peça desaparece para a próxima montagem
+  col: number;
+  row: number;
+  offset: number; // tempo relativo ao INÍCIO da própria sequência, não do ciclo inteiro
 }
 
-// O "level design" com 3 variações de montagem que se alternam
-const PIECES: PieceConfig[] = [
-  // Montagem 1 (0s a 6s)
-  { shape: 'I', col: 0, row: 3, delay: 0, fadeAt: 5.0 },
-  { shape: 'L', col: 3, row: 4, delay: 0.6, fadeAt: 5.0 },
-  { shape: 'O', col: 1, row: 5, delay: 1.2, fadeAt: 5.0 },
-  { shape: 'S', col: 4, row: 4, delay: 1.8, fadeAt: 5.0 },
-  { shape: 'T', col: 1, row: 3, delay: 2.4, fadeAt: 5.0 },
+interface Sequence {
+  pieces: PieceDef[];
+  holdBeforeFade: number; // segundos que a montagem fica parada e visível antes de sumir
+}
 
-  // Montagem 2 (6s a 12s)
-  { shape: 'I', col: 0, row: 3, delay: 6.0, fadeAt: 11.0 },
-  { shape: 'L', col: 1, row: 4, delay: 6.6, fadeAt: 11.0 },
-  { shape: 'S', col: 3, row: 5, delay: 7.2, fadeAt: 11.0 },
-  { shape: 'O', col: 2, row: 4, delay: 7.8, fadeAt: 11.0 },
-  { shape: 'T', col: 3, row: 3, delay: 8.4, fadeAt: 11.0 },
-
-  // Montagem 3 (12s a 18s)
-  { shape: 'S', col: 0, row: 5, delay: 12.0, fadeAt: 17.0 },
-  { shape: 'L', col: 3, row: 4, delay: 12.6, fadeAt: 17.0 },
-  { shape: 'I', col: 6, row: 3, delay: 13.2, fadeAt: 17.0 },
-  { shape: 'O', col: 4, row: 4, delay: 13.8, fadeAt: 17.0 },
-  { shape: 'T', col: 1, row: 3, delay: 14.4, fadeAt: 17.0 },
+// ---- "Level design": adicione/remova sequências livremente aqui. ----
+// Nada abaixo precisa ser recalculado à mão — offset é sempre relativo,
+// e o total (CYCLE) é derivado automaticamente logo depois.
+const SEQUENCES: Sequence[] = [
+  {
+    holdBeforeFade: 2.3,
+    pieces: [
+      { shape: 'I', col: 0, row: 3, offset: 0 },
+      { shape: 'L', col: 3, row: 4, offset: 0.6 },
+      { shape: 'O', col: 1, row: 5, offset: 1.2 },
+      { shape: 'S', col: 4, row: 4, offset: 1.8 },
+      { shape: 'T', col: 1, row: 3, offset: 2.4 },
+    ],
+  },
+  {
+    holdBeforeFade: 2.3,
+    pieces: [
+      { shape: 'I', col: 0, row: 3, offset: 0 },
+      { shape: 'L', col: 1, row: 4, offset: 0.6 },
+      { shape: 'S', col: 3, row: 5, offset: 1.2 },
+      { shape: 'O', col: 2, row: 4, offset: 1.8 },
+      { shape: 'T', col: 3, row: 3, offset: 2.4 },
+    ],
+  },
+  {
+    holdBeforeFade: 2.3,
+    pieces: [
+      { shape: 'S', col: 0, row: 5, offset: 0 },
+      { shape: 'L', col: 3, row: 4, offset: 0.6 },
+      { shape: 'I', col: 6, row: 3, offset: 1.2 },
+      { shape: 'O', col: 4, row: 4, offset: 1.8 },
+      { shape: 'T', col: 1, row: 3, offset: 2.4 },
+    ],
+  },
 ];
 
-const CYCLE = 18; // Tempo total do loop em segundos (3 ciclos de 6s)
-const FALL_DURATION = 0.8; // Tempo de queda de cada peça
+// ---- Cálculo automático do timing — é isso que corrige o bug ----
+// Para cada sequência: quando ela pousa (última peça) + hold + fade = duração da sequência.
+// startOffset[i] = soma das durações anteriores + gap. CYCLE = soma de tudo + gap final.
+function computeTimeline() {
+  const sequenceDurations = SEQUENCES.map((seq) => {
+    const lastPieceOffset = Math.max(...seq.pieces.map((p) => p.offset));
+    return lastPieceOffset + FALL_DURATION + seq.holdBeforeFade + FADE_DURATION;
+  });
+
+  const startOffsets: number[] = [];
+  let cursor = 0;
+  sequenceDurations.forEach((duration) => {
+    startOffsets.push(cursor);
+    cursor += duration + GAP_BETWEEN_SEQUENCES;
+  });
+
+  const cycle = cursor; // já inclui o gap final antes do loop reiniciar
+
+  return { startOffsets, sequenceDurations, cycle };
+}
+
+const { startOffsets, cycle: CYCLE } = computeTimeline();
+
+// Achata SEQUENCES em uma lista de peças com delay/fadeAt absolutos,
+// já garantidamente dentro de [0, CYCLE] e sem colisão entre elas.
+const PIECES = SEQUENCES.flatMap((seq, seqIndex) => {
+  const seqStart = startOffsets[seqIndex];
+  return seq.pieces.map((piece) => ({
+    ...piece,
+    delay: seqStart + piece.offset,
+    fadeAt:
+      seqStart +
+      Math.max(...seq.pieces.map((p) => p.offset)) +
+      FALL_DURATION +
+      seq.holdBeforeFade,
+  }));
+});
 
 const generateCSS = () => {
   const piecesCSS = PIECES.map((piece, i) => {
     const pStart = (piece.delay / CYCLE) * 100;
     const pDropEnd = ((piece.delay + FALL_DURATION) / CYCLE) * 100;
     const pFadeStart = (piece.fadeAt / CYCLE) * 100;
-    const pFadeEnd = ((piece.fadeAt + 0.5) / CYCLE) * 100;
+    const pFadeEnd = ((piece.fadeAt + FADE_DURATION) / CYCLE) * 100;
 
     let css = `
       .piece-${i} {
-        animation: fall-${i} ${CYCLE}s infinite ease-in;
+        animation: fall-${i} ${CYCLE}s infinite linear;
       }
 
       @keyframes fall-${i} {
@@ -154,8 +208,8 @@ export default function TetrisTitleAnim() {
   return (
     <div className="tetris-wrapper" aria-hidden="true">
       {PIECES.map((piece, i) => (
-        <div 
-          key={i} 
+        <div
+          key={i}
           className="tetris-piece"
           style={{
             left: piece.col * UNIT,
