@@ -1,9 +1,8 @@
-// src/components/Terminal.tsx
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
 import { commandRegistry, getAvailableCommands } from './commands/registry'
-import { TerminalSpinner } from './TerminalSpinner'
+import { TerminalSendingView } from './TerminalSendingView'
 import { useLanguage } from '@/context/LanguageContext'
 
 type HistoryEntry = {
@@ -34,7 +33,6 @@ export default function Terminal() {
 
   useEffect(() => {
     if (bottomRef.current) {
-      // scrollIntoView might not be as reliable as setting scrollTop on the container
       const container = bottomRef.current.parentElement;
       if (container) {
         container.scrollTop = container.scrollHeight;
@@ -56,14 +54,12 @@ export default function Terminal() {
     setCommandHistory(prev => [...prev, cmd])
     appendHistory({ cmd: raw, out: null })
 
-    // Validação estrita de idioma: só permite o comando se for do idioma atual
     const validCommands = getAvailableCommands(language);
     if (!validCommands.includes(key)) {
       appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t(`Comando não encontrado: ${key}. Digite 'ajuda' para opções.`, `Command not found: ${key}. Type 'help' for options.`)}</span> })
       return
     }
 
-    // Comandos nativos do terminal que não precisam de registry
     if (key === 'clear' || key === 'limpar') {
       setHistory([{ out: commandRegistry['whoami'](language) }])
       return
@@ -85,7 +81,6 @@ export default function Terminal() {
     }
 
     const handler = commandRegistry[key]
-
     try {
       const result = await handler(language)
       if (result !== null) appendHistory({ out: result })
@@ -131,28 +126,8 @@ export default function Terminal() {
       if (!cmd) return;
       appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Mensagem:', 'Message:')} <span className="text-[#00cfff]">{cmd}</span></div> })
       
+      setContactForm(prev => ({ ...prev, mensagem: cmd }))
       setInputMode('contact_submitting')
-      
-      try {
-        // Delay artificial de 1.5s para a animação do spinner ser visível
-        await new Promise(r => setTimeout(r, 1500));
-        
-        const res = await fetch('/api/contato', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...contactForm, mensagem: cmd })
-        });
-        if (res.ok) {
-          appendHistory({ out: <div className="text-[#00ff88] terminal-line font-bold mt-2">{t('[✓] Mensagem enviada com sucesso! Voltando ao terminal padrão...', '[✓] Message sent successfully! Returning to default terminal...')}</div> })
-        } else {
-          appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
-        }
-      } catch (e) {
-        appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
-      }
-      
-      setInputMode('normal')
-      setContactForm({ nome: '', email: '', mensagem: '' })
       setInput('')
       return
     }
@@ -161,6 +136,19 @@ export default function Terminal() {
     setInput('')
     setHistoryIndex(-1)
     inputRef.current?.focus()
+  }
+
+  const handleContactSuccess = (name: string) => {
+    appendHistory({ out: <div className="text-[#00ff88] terminal-line font-bold mt-2">{t('[ TRANSMISSÃO COMPLETA ]', '[ TRANSMISSION COMPLETE ]')}</div> })
+    appendHistory({ out: <div className="text-[#666] terminal-line text-sm mt-1">{t(`Olá ${name}, mensagem recebida. Responderei em breve.`, `Hello ${name}, message received. I'll reply soon.`)}</div> })
+    setInputMode('normal')
+    setContactForm({ nome: '', email: '', mensagem: '' })
+  }
+
+  const handleContactError = () => {
+    appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
+    setInputMode('normal')
+    setContactForm({ nome: '', email: '', mensagem: '' })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -214,7 +202,6 @@ export default function Terminal() {
   }
 
   const handleTerminalClick = () => {
-    // Only focus if the user hasn't selected text
     if (window.getSelection()?.toString() === '') {
       inputRef.current?.focus();
     }
@@ -248,7 +235,6 @@ export default function Terminal() {
             <span>UTF-8</span>
           </div>
           
-          {/* Seletor de Idioma */}
           <div 
             className="flex items-center gap-2 font-bold cursor-pointer hover:text-[#888] transition-colors" 
             onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
@@ -280,9 +266,11 @@ export default function Terminal() {
           </div>
 
           {inputMode === 'contact_submitting' ? (
-            <div className="mt-4 px-2">
-               <TerminalSpinner text={t('ENVIANDO VIA SMTP', 'SENDING VIA SMTP')} />
-            </div>
+            <TerminalSendingView 
+              formData={contactForm} 
+              onSuccess={() => handleContactSuccess(contactForm.nome)} 
+              onError={handleContactError} 
+            />
           ) : (
             <form onSubmit={onSubmit} className="flex items-center gap-2 mt-4 bg-[#141414] border border-[#2a2a2a] p-2.5 rounded-lg text-sm md:text-base shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10 relative terminal-line transition-all duration-300 focus-within:border-[#333] focus-within:shadow-[0_0_8px_rgba(0,255,136,0.05)]">
               <div className="flex items-center gap-2 shrink-0">
