@@ -8,32 +8,35 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (ptText: string, enText: string) => string;
+  mounted: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('pt');
+  const [mounted, setMounted] = useState(false);
 
-  // Load language from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('portfolio_lang') as Language;
     if (saved && (saved === 'pt' || saved === 'en')) {
       setLanguage(saved);
     }
+    setMounted(true);
   }, []);
 
-  // Save to localStorage when changed
   useEffect(() => {
-    localStorage.setItem('portfolio_lang', language);
-  }, [language]);
+    if (mounted) {
+      localStorage.setItem('portfolio_lang', language);
+    }
+  }, [language, mounted]);
 
   const t = (ptText: string, enText: string) => {
     return language === 'pt' ? ptText : enText;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, mounted }}>
       {children}
     </LanguageContext.Provider>
   );

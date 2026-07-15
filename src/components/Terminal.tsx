@@ -11,7 +11,7 @@ type HistoryEntry = {
 }
 
 export default function Terminal() {
-  const { language, setLanguage, t } = useLanguage()
+  const { language, setLanguage, t, mounted } = useLanguage()
 
   const [history, setHistory] = useState<HistoryEntry[]>([
     { out: commandRegistry['whoami'](language) },
@@ -129,7 +129,10 @@ export default function Terminal() {
 
   return (
     <div className="flex-1 w-full flex items-center justify-center p-4 md:p-8" role="application" aria-label="Terminal do portfólio">
-      <div className="w-full max-w-5xl h-[85vh] flex flex-col bg-[#0d0d0d] border border-[#222] rounded-xl shadow-2xl overflow-hidden text-[15px] relative crt-overlay">
+      <div 
+        className={`w-full max-w-4xl h-[85vh] max-h-[800px] bg-[#0d0d0d] rounded-xl border border-[#222] shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out ${mounted ? 'opacity-100' : 'opacity-0'}`}
+        onClick={handleTerminalClick}
+      >
         
         <div className="h-10 border-b border-[#222] flex items-center px-4 relative bg-[#18181a] shrink-0">
           <div className="flex gap-2 absolute left-4">
