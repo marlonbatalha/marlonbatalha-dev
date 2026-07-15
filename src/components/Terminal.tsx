@@ -262,12 +262,14 @@ export default function Terminal() {
               <div key={i} className="flex flex-col gap-1.5">
                 {entry.cmd && (
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-sm md:text-base terminal-line">
-                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
-                    <span className="text-[#666] hidden sm:inline">@</span>
-                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
-                    <span className="text-[#666] hidden sm:inline">:</span>
-                    <span className="text-[#a78bfa] font-bold text-[#00ff88] sm:text-[#a78bfa]">~</span>
-                    <span className="text-[#666]">$</span>
+                    <div className="flex items-center">
+                      <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
+                      <span className="text-[#666] hidden sm:inline">@</span>
+                      <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
+                      <span className="text-[#666] hidden sm:inline">:</span>
+                      <span className="text-[#a78bfa] font-bold text-[#00ff88] sm:text-[#a78bfa]">~</span>
+                      <span className="text-[#666]">$</span>
+                    </div>
                     <span className="text-[#e8e8e8]">{entry.cmd}</span>
                   </div>
                 )}
@@ -284,7 +286,7 @@ export default function Terminal() {
             />
           ) : (
             <form onSubmit={onSubmit} className="flex items-center gap-1.5 sm:gap-2 mt-2 text-sm md:text-base z-10 relative terminal-line">
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div className="flex items-center shrink-0">
                 {inputMode === 'normal' ? (
                   <>
                     <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>

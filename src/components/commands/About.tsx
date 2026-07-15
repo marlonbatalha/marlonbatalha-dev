@@ -31,10 +31,13 @@ export default function About() {
     setIsAnimating(true);
     if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current);
     
-    // Aguarda um pequeno ciclo para o DOM renderizar a posição inicial antes de animar
+    // Usamos um pequeno atraso + requestAnimationFrame para garantir que o DOM pinte
+    // a posição inicial antes de iniciar a transição, evitando stutter/lags
     hoverTimeoutRef.current = setTimeout(() => {
-      setIsHovered(true);
-    }, 20);
+      requestAnimationFrame(() => {
+        setIsHovered(true);
+      });
+    }, 50);
   };
 
   const handleMouseLeave = () => {
@@ -69,12 +72,24 @@ export default function About() {
           <div className="absolute inset-0 bg-[#00ff88]/20 transition-colors duration-500 z-10 pointer-events-none mix-blend-overlay"></div>
           {/* Esconde a imagem original enquanto faz a transição para criar a ilusão de que ela "descolou" */}
           <Image 
-            src="/image/1001077215.jpg" 
+            src="/image/MARLON BATALHA - DESENVOLVIMENTO (1).jpeg" 
             alt="Marlon Batalha" 
             fill
             sizes="96px"
             quality={100}
             className={`object-cover grayscale transition-all duration-500 ${isHovered ? 'opacity-0' : 'opacity-100'}`}
+          />
+        </div>
+
+        {/* Preload da versão em alta resolução para evitar travamentos no primeiro hover */}
+        <div className="hidden">
+          <Image 
+            src="/image/MARLON BATALHA - DESENVOLVIMENTO (1).jpeg" 
+            alt="Marlon Batalha" 
+            fill
+            sizes="512px"
+            quality={100}
+            priority={true}
           />
         </div>
 
@@ -99,7 +114,7 @@ export default function About() {
                 }}
               >
                 <Image 
-                  src="/image/1001077215.jpg" 
+                  src="/image/MARLON BATALHA - DESENVOLVIMENTO (1).jpeg" 
                   alt="Marlon Batalha" 
                   fill
                   sizes="512px"
