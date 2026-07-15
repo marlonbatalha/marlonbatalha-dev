@@ -208,9 +208,9 @@ export default function Terminal() {
   }
 
   return (
-    <div className="flex-1 w-full flex items-center justify-center p-4 md:p-8" role="application" aria-label="Terminal do portfólio">
+    <div className="flex-1 w-full flex items-center justify-center sm:p-4 md:p-8" role="application" aria-label="Terminal do portfólio">
       <div 
-        className={`w-full max-w-4xl h-[85vh] max-h-[800px] bg-[#0d0d0d] rounded-xl border border-[#222] shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out relative crt-overlay ${mounted ? 'opacity-100' : 'opacity-0'}`}
+        className={`w-full max-w-4xl h-[100dvh] sm:h-[85vh] max-h-none sm:max-h-[800px] bg-[#0d0d0d] sm:rounded-xl border-y sm:border border-[#222] shadow-none sm:shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out relative crt-overlay ${mounted ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleTerminalClick}
       >
         
@@ -250,12 +250,12 @@ export default function Terminal() {
             {history.map((entry, i) => (
               <div key={i} className="flex flex-col gap-1.5">
                 {entry.cmd && (
-                  <div className="flex items-center gap-2 flex-wrap text-sm md:text-base terminal-line">
-                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)]">marlonbatalha</span>
-                    <span className="text-[#666]">@</span>
-                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">portfolio</span>
-                    <span className="text-[#666]">:</span>
-                    <span className="text-[#a78bfa] font-bold">~</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-sm md:text-base terminal-line">
+                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
+                    <span className="text-[#666] hidden sm:inline">@</span>
+                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
+                    <span className="text-[#666] hidden sm:inline">:</span>
+                    <span className="text-[#a78bfa] font-bold text-[#00ff88] sm:text-[#a78bfa]">~</span>
                     <span className="text-[#666]">$</span>
                     <span className="text-[#e8e8e8]">{entry.cmd}</span>
                   </div>
@@ -273,14 +273,14 @@ export default function Terminal() {
             />
           ) : (
             <form onSubmit={onSubmit} className="flex items-center gap-2 mt-4 bg-[#141414] border border-[#2a2a2a] p-2.5 rounded-lg text-sm md:text-base shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10 relative terminal-line transition-all duration-300 focus-within:border-[#333] focus-within:shadow-[0_0_8px_rgba(0,255,136,0.05)]">
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 {inputMode === 'normal' ? (
                   <>
-                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)]">marlonbatalha</span>
-                    <span className="text-[#666]">@</span>
-                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">portfolio</span>
-                    <span className="text-[#666]">:</span>
-                    <span className="text-[#a78bfa] font-bold">~</span>
+                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
+                    <span className="text-[#666] hidden sm:inline">@</span>
+                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
+                    <span className="text-[#666] hidden sm:inline">:</span>
+                    <span className="text-[#a78bfa] font-bold text-[#00ff88] sm:text-[#a78bfa]">~</span>
                     <span className="text-[#666]">$</span>
                   </>
                 ) : (
@@ -302,11 +302,11 @@ export default function Terminal() {
           <div ref={bottomRef} />
         </div>
 
-        <div className="h-10 border-t border-[#222] flex items-center px-4 gap-4 md:gap-6 text-[11px] md:text-xs text-[#555] bg-[#111] shrink-0">
-          <div className="flex items-center gap-2"><span className="border border-[#333] px-1.5 py-0.5 rounded text-[#888]">↑↓</span> {t('histórico', 'history')}</div>
-          <div className="flex items-center gap-2"><span className="border border-[#333] px-1.5 py-0.5 rounded text-[#888]">Tab</span> {t('completar', 'autocomplete')}</div>
-          <div className="flex items-center gap-2 hidden md:flex"><span className="border border-[#333] px-1.5 py-0.5 rounded text-[#888]">Ctrl+L</span> {t('limpar', 'clear')}</div>
-          <div className="flex items-center gap-2"><span className="border border-[#333] px-1.5 py-0.5 rounded text-[#888]">Enter</span> {t('executar', 'execute')}</div>
+        <div className="h-10 border-t border-[#222] flex items-center px-4 gap-3 sm:gap-4 md:gap-6 text-[10px] sm:text-[11px] md:text-xs text-[#555] bg-[#111] shrink-0 overflow-x-auto scrollbar-hide whitespace-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">↑↓</span> {t('histórico', 'history')}</div>
+          <div className="flex items-center gap-1.5 sm:gap-2"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">Tab</span> {t('completar', 'autocomplete')}</div>
+          <div className="flex items-center gap-1.5 sm:gap-2 hidden md:flex"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">Ctrl+L</span> {t('limpar', 'clear')}</div>
+          <div className="flex items-center gap-1.5 sm:gap-2"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">Enter</span> {t('executar', 'execute')}</div>
         </div>
 
       </div>
