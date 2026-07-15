@@ -16,7 +16,7 @@ export default function Whoami() {
 ██║ ╚═╝ ██║██║  ██║██║  ██║███████╗╚██████╔╝██║ ╚████║    ██████╔╝██║  ██║   ██║   ██║  ██║███████╗██║  ██║██║  ██║
 ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝`}
         </pre>
-        <div className="hidden sm:block pb-1 lg:pb-3 shrink-0">
+        <div className="pb-1 lg:pb-3 shrink-0 transform scale-[0.6] sm:scale-100 origin-bottom-left">
           <TetrisTitleAnim />
         </div>
       </div>

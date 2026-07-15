@@ -55,6 +55,16 @@ export default function About() {
           className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.3)] shrink-0 cursor-pointer"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (typeof window !== 'undefined' && window.innerWidth <= 640) {
+              if (isHovered) {
+                handleMouseLeave();
+              } else {
+                handleMouseEnter();
+              }
+            }
+          }}
         >
           <div className="absolute inset-0 bg-[#00ff88]/20 transition-colors duration-500 z-10 pointer-events-none mix-blend-overlay"></div>
           {/* Esconde a imagem original enquanto faz a transição para criar a ilusão de que ela "descolou" */}
@@ -71,7 +81,11 @@ export default function About() {
         {/* Overlay centralizado usando React Portal com animação FLIP */}
         {mounted && (isHovered || isAnimating) && createPortal(
           <div 
-            className={`fixed inset-0 z-[9999] pointer-events-none transition-all duration-500 ${isHovered ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent backdrop-blur-none'}`}
+            className={`fixed inset-0 z-[9999] transition-all duration-500 ${isHovered ? 'bg-black/60 backdrop-blur-sm pointer-events-auto' : 'bg-transparent backdrop-blur-none pointer-events-none'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleMouseLeave();
+            }}
           >
             {rect && (
               <div 

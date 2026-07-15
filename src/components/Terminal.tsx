@@ -207,6 +207,9 @@ export default function Terminal() {
   }
 
   const handleTerminalClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 640) {
+      return;
+    }
     if (window.getSelection()?.toString() === '') {
       inputRef.current?.focus();
     }
