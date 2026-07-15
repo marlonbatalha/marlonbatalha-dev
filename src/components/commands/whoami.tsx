@@ -27,7 +27,7 @@ export default function Whoami() {
         </div>
         
         <div className="mt-2 text-[#00cfff] text-sm md:text-base drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">
-          {t('Digite "help" para ver os comandos disponíveis.', 'Type "help" to see available commands.')}
+          {t('Digite "ajuda" para ver os comandos disponíveis.', 'Type "help" to see available commands.')}
         </div>
       </div>
     </div>

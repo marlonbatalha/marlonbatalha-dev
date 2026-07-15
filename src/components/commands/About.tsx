@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function About() {
@@ -7,12 +8,20 @@ export default function About() {
   return (
     <div className="flex flex-col gap-4 max-w-2xl text-[#e8e8e8] terminal-line">
       <div className="flex items-center gap-4 border-b border-[#222] pb-4 mb-2">
-        <div className="w-16 h-16 bg-[#00cfff] bg-opacity-20 rounded-full flex items-center justify-center text-[#00cfff] font-bold text-xl border border-[#00cfff]">
-          MB
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.3)] shrink-0 group hover:scale-[3.5] sm:hover:scale-[4] hover:z-50 hover:shadow-[0_0_30px_rgba(0,255,136,0.5)] transition-all duration-500 origin-top-left cursor-pointer">
+          <div className="absolute inset-0 bg-[#00ff88]/20 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none mix-blend-overlay"></div>
+          <Image 
+            src="/image/1001077215.jpg" 
+            alt="Marlon Batalha" 
+            fill
+            sizes="512px"
+            quality={100}
+            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+          />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-[#00cfff]">Marlon Batalha</h2>
-          <p className="text-[#00ff88] text-sm">{t('Desenvolvedor Full Stack Jr', 'Full Stack Jr Developer')}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#00cfff]">Marlon Batalha</h2>
+          <p className="text-[#00ff88] text-xs sm:text-sm">{t('Desenvolvedor Full Stack Jr', 'Full Stack Jr Developer')}</p>
         </div>
       </div>
       

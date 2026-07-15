@@ -277,7 +277,7 @@ export default function Terminal() {
               onError={handleContactError} 
             />
           ) : (
-            <form onSubmit={onSubmit} className="flex items-center gap-2 mt-4 bg-[#141414] border border-[#2a2a2a] p-2.5 rounded-lg text-sm md:text-base shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10 relative terminal-line transition-all duration-300 focus-within:border-[#333] focus-within:shadow-[0_0_8px_rgba(0,255,136,0.05)]">
+            <form onSubmit={onSubmit} className="flex items-center gap-1.5 sm:gap-2 mt-2 text-sm md:text-base z-10 relative terminal-line">
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 {inputMode === 'normal' ? (
                   <>
