@@ -9,20 +9,24 @@
   animation: terminal-fade-in 0.15s ease-out forwards;
 }
 
+.crt-overlay {
+  position: relative;
+}
+
 .crt-overlay::before {
-  content: " ";
-  display: block;
+  content: '';
   position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
+  inset: 0;
   background: repeating-linear-gradient(
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.1) 3px,
-    rgba(0, 0, 0, 0.1) 3px
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.12) 3px,
+    rgba(0, 0, 0, 0.12) 4px
   );
   pointer-events: none;
   z-index: 50;
-  opacity: 0.2;
+  border-radius: inherit;
 }
 
 body {

@@ -130,7 +130,7 @@ export default function Terminal() {
   return (
     <div className="flex-1 w-full flex items-center justify-center p-4 md:p-8" role="application" aria-label="Terminal do portfólio">
       <div 
-        className={`w-full max-w-4xl h-[85vh] max-h-[800px] bg-[#0d0d0d] rounded-xl border border-[#222] shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out ${mounted ? 'opacity-100' : 'opacity-0'}`}
+        className={`w-full max-w-4xl h-[85vh] max-h-[800px] bg-[#0d0d0d] rounded-xl border border-[#222] shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out relative crt-overlay ${mounted ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleTerminalClick}
       >
         
