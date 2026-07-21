@@ -44,6 +44,37 @@ export default function TypewriterText({
     }
   }, [displayedLines, isTyping]);
 
+  // Bloqueia a rolagem do usuário enquanto a digitação acontece. O autoscroll
+  // acima continua funcionando (é programático); aqui só a entrada do usuário
+  // é bloqueada, que era o que brigava com o autoscroll a cada caractere e
+  // quebrava a animação.
+  useEffect(() => {
+    if (isComplete) return;
+
+    const container = bottomRef.current?.closest('.overflow-y-auto') as HTMLElement | null;
+    if (!container) return;
+
+    const blockScroll = (e: Event) => e.preventDefault();
+    const blockScrollKeys = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      // Não interfere na digitação/histórico de comandos do input do terminal
+      if (target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA') return;
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+
+    container.addEventListener('wheel', blockScroll, { passive: false });
+    container.addEventListener('touchmove', blockScroll, { passive: false });
+    container.addEventListener('keydown', blockScrollKeys);
+
+    return () => {
+      container.removeEventListener('wheel', blockScroll);
+      container.removeEventListener('touchmove', blockScroll);
+      container.removeEventListener('keydown', blockScrollKeys);
+    };
+  }, [isComplete]);
+
   const activeLineIndex = displayedLines.findIndex((line, i) => line.length < (lines[i]?.length || 0));
   const cursorIndex = activeLineIndex === -1 ? displayedLines.length - 1 : activeLineIndex;
 

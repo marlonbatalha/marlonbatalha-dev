@@ -33,24 +33,15 @@ body {
   font-family: var(--font-jetbrains-mono), monospace;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Scrollbar invisível em todo o site — a rolagem continua funcionando
+   normalmente via mouse/trackpad/touch, só o desenho da barra some */
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* Edge legado */
 }
 
-::-webkit-scrollbar-track {
-  background: #0d0d0d;
-  border-left: 1px solid #222;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+*::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari, Edge (Chromium) */
 }
 
 /* Glitch Effect Variables */
