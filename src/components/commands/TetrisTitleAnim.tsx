@@ -79,21 +79,21 @@ const SEQUENCES: Sequence[] = [
   {
     holdBeforeFade: 2.1,
     pieces: [
-      { shape: 'O', col: 2, row: 5, offset: 0 },
-      { shape: 'T', col: 4, row: 3, offset: 0.6 },
-      { shape: 'S', col: 1, row: 4, offset: 1.2 },
-      { shape: 'I', col: 5, row: 3, offset: 1.8 },
-      { shape: 'L', col: 0, row: 3, offset: 2.4 },
+      { shape: 'I', col: 0, row: 3, offset: 0 },
+      { shape: 'L', col: 1, row: 3, offset: 0.6 },
+      { shape: 'T', col: 3, row: 3, offset: 1.2 },
+      { shape: 'O', col: 5, row: 5, offset: 1.8 },
+      { shape: 'S', col: 2, row: 5, offset: 2.4 },
     ],
   },
   {
     holdBeforeFade: 2.1,
     pieces: [
       { shape: 'T', col: 0, row: 3, offset: 0 },
-      { shape: 'I', col: 2, row: 3, offset: 0.6 },
-      { shape: 'L', col: 5, row: 4, offset: 1.2 },
-      { shape: 'S', col: 3, row: 5, offset: 1.8 },
-      { shape: 'O', col: 1, row: 4, offset: 2.4 },
+      { shape: 'I', col: 3, row: 3, offset: 0.6 },
+      { shape: 'O', col: 5, row: 3, offset: 1.2 },
+      { shape: 'L', col: 0, row: 4, offset: 1.8 },
+      { shape: 'S', col: 4, row: 5, offset: 2.4 },
     ],
   },
 ];

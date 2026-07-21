@@ -3,16 +3,6 @@ import { Project } from "@/types/project";
 export const projects: Project[] = [
     {
         id: "1",
-        nome: "Portfólio Terminal",
-        nomeEn: "Terminal Portfolio",
-        descricao: "Meu portfólio pessoal com interface imersiva de terminal desenvolvido em Next.js e Tailwind CSS.",
-        descricaoEn: "My personal portfolio with an immersive terminal interface built with Next.js and Tailwind CSS.",
-        tecnologias: ["Next.js", "TypeScript", "Tailwind CSS"],
-        linkRepositorio: "https://github.com/marlonbatalha/marlonbatalha-dev",
-        linkLive: "https://marlonbatalha.dev",
-    },
-    {
-        id: "2",
         nome: "E-commerce XPTO",
         nomeEn: "XPTO E-commerce",
         descricao: "Plataforma completa de vendas online com carrinho de compras, integração de pagamentos e painel administrativo.",
@@ -21,12 +11,21 @@ export const projects: Project[] = [
         linkRepositorio: "https://github.com/marlonbatalha/ecommerce-xpto",
     },
     {
-        id: "3",
+        id: "2",
         nome: "App de Tarefas",
         nomeEn: "Task App",
         descricao: "Aplicativo de gestão de tempo e tarefas baseado na técnica Pomodoro.",
         descricaoEn: "Time and task management application based on the Pomodoro technique.",
         tecnologias: ["React Native", "Expo", "SQLite"],
         linkLive: "https://play.google.com/store/apps/details?id=tarefas",
+    },
+    {
+        id: "3",
+        nome: "Aplicativo de Gestao Financeira",
+        nomeEn: "Finance Management App",
+        descricao: "Aplicativo de gestão financeira pessoal com funcionalidades de rastreamento de despesas e receitas.",
+        descricaoEn: "Personal finance management app with features for tracking expenses and income.",
+        tecnologias: ["React Native", "Expo", "SQLite"],
+        linkRepositorio: "https://github.com/marlonbatalha/personal-finance-app",
     }
 ];
