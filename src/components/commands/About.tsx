@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import TypewriterText from '../TypewriterText';
 import GlitchText from '../GlitchText';
+
+// Detecta se já hidratou no cliente (para o Portal) sem chamar setState dentro de um effect
+const emptySubscribe = () => () => {};
 
 export default function About() {
   const { t } = useLanguage();
@@ -11,13 +14,9 @@ export default function About() {
   const [isAnimating, setIsAnimating] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const animTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const imgRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Trava o scroll da página enquanto a animação do overlay está ativa,
   // evitando que o scroll do mouse dessincronize o rect (fixed) da imagem original.

@@ -14,14 +14,20 @@ const STEPS = [
 ];
 const PROGRESS_BAR_WIDTH = 24;
 
-export function TerminalSendingView({ 
-    formData, 
-    onSuccess, 
-    onError 
-}: { 
-    formData: any, 
-    onSuccess: () => void, 
-    onError: () => void 
+interface ContactFormData {
+  nome: string;
+  email: string;
+  mensagem: string;
+}
+
+export function TerminalSendingView({
+    formData,
+    onSuccess,
+    onError
+}: {
+    formData: ContactFormData,
+    onSuccess: () => void,
+    onError: () => void
 }) {
   const { language } = useLanguage();
   const lang = language as 'pt' | 'en';

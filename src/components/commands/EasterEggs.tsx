@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TypewriterText from '../TypewriterText';
 import GlitchText from '../GlitchText';
-import { useLanguage } from '@/context/LanguageContext';
 
 export const Sudo = () => {
   const [showFlash, setShowFlash] = useState(true);
