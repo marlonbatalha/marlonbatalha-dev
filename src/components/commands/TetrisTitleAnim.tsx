@@ -76,6 +76,26 @@ const SEQUENCES: Sequence[] = [
       { shape: 'T', col: 1, row: 3, offset: 2.4 },
     ],
   },
+  {
+    holdBeforeFade: 2.1,
+    pieces: [
+      { shape: 'O', col: 2, row: 5, offset: 0 },
+      { shape: 'T', col: 4, row: 3, offset: 0.6 },
+      { shape: 'S', col: 1, row: 4, offset: 1.2 },
+      { shape: 'I', col: 5, row: 3, offset: 1.8 },
+      { shape: 'L', col: 0, row: 3, offset: 2.4 },
+    ],
+  },
+  {
+    holdBeforeFade: 2.1,
+    pieces: [
+      { shape: 'T', col: 0, row: 3, offset: 0 },
+      { shape: 'I', col: 2, row: 3, offset: 0.6 },
+      { shape: 'L', col: 5, row: 4, offset: 1.2 },
+      { shape: 'S', col: 3, row: 5, offset: 1.8 },
+      { shape: 'O', col: 1, row: 4, offset: 2.4 },
+    ],
+  },
 ];
 
 // ---- Cálculo automático do timing — é isso que corrige o bug ----
