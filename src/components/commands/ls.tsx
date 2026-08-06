@@ -10,12 +10,24 @@ const FolderIcon = () => (
 export default function Ls() {
   const { t } = useLanguage();
 
+  const items = [
+    t('sobre', 'about'),
+    t('projetos', 'projects'),
+    t('habilidades', 'skills'),
+    t('contato', 'contact'),
+  ];
+
   return (
-    <div className="flex gap-6 text-[#00cfff] terminal-line">
-      <div className="flex items-center gap-2 font-bold"><FolderIcon /> {t('sobre', 'about')}</div>
-      <div className="flex items-center gap-2 font-bold"><FolderIcon /> {t('projetos', 'projects')}</div>
-      <div className="flex items-center gap-2 font-bold"><FolderIcon /> {t('habilidades', 'skills')}</div>
-      <div className="flex items-center gap-2 font-bold"><FolderIcon /> {t('contato', 'contact')}</div>
+    <div className="flex gap-6 text-[#00cfff]">
+      {items.map((item, i) => (
+        <div
+          key={item}
+          className="flex items-center gap-2 font-bold terminal-line"
+          style={{ animationDelay: `${i * 90}ms`, animationFillMode: 'both' }}
+        >
+          <FolderIcon /> {item}
+        </div>
+      ))}
     </div>
   );
 }

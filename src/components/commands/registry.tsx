@@ -3,7 +3,7 @@ import About from './About';
 import Projects from './Projects';
 import Skills from './Skills';
 import Contact from './Contact';
-import Whoami from './whoami';
+import Whoami from './Whoami';
 import Ls from './ls';
 
 export const getAvailableCommands = (lang: 'pt' | 'en') => {

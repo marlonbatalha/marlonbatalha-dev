@@ -11,6 +11,8 @@ export interface UseTypewriterOptions {
   skip?: boolean;
 }
 
+const PUNCTUATION = new Set(['.', ',', ':', '!', '?']);
+
 export function useTypewriter({
   lines,
   baseSpeed = 30,
@@ -21,15 +23,10 @@ export function useTypewriter({
   onComplete,
   skip = false
 }: UseTypewriterOptions) {
-  const [displayedLines, setDisplayedLines] = useState<string[]>([]);
-  const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const [currentCharIndex, setCurrentCharIndex] = useState(0);
+  const [displayedLines, setDisplayedLines] = useState<string[]>(() => (skip ? [...lines] : []));
   const [isTyping, setIsTyping] = useState(!skip);
   const [isComplete, setIsComplete] = useState(skip);
-  const [isPaused, setIsPaused] = useState(false);
-  
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // A ref to keep track of the latest callbacks to avoid dependency cycles in useEffect
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -41,89 +38,98 @@ export function useTypewriter({
       setDisplayedLines([...lines]);
       setIsTyping(false);
       setIsComplete(true);
-      if (onCompleteRef.current) onCompleteRef.current();
+      onCompleteRef.current?.();
       return;
     }
 
     if (!lines || lines.length === 0) {
+      setDisplayedLines([]);
       setIsTyping(false);
       setIsComplete(true);
-      if (onCompleteRef.current) onCompleteRef.current();
+      onCompleteRef.current?.();
       return;
     }
 
-    // Reset states when starting
-    setDisplayedLines(lines.map(() => ''));
-    setCurrentLineIndex(0);
-    setCurrentCharIndex(0);
+    let cancelled = false;
+    let rafId = 0;
+
+    // Buffer mutável local — evita depender do estado do React entre frames
+    // (fecho antigo) e faz no máximo um setState por frame, em vez de um
+    // setTimeout + setState por caractere.
+    const buffer = lines.map(() => '');
+    let lineIndex = 0;
+    let charIndex = 0;
+    let nextCharAt: number | null = null; // timestamp no relógio do rAF
+
+    setDisplayedLines(buffer.slice());
     setIsComplete(false);
-    setIsPaused(false);
-    setIsTyping(false); // will be true after startDelay
-    
-    // Start delay
-    timeoutRef.current = setTimeout(() => {
+    setIsTyping(false);
+
+    const delayForNextChar = (prevChar: string | undefined) => {
+      const jitter = baseSpeed + (Math.random() * humanVariance * 2 - humanVariance);
+      const punctuation = prevChar && PUNCTUATION.has(prevChar) ? punctuationDelay : 0;
+      return Math.max(jitter + punctuation, 0);
+    };
+
+    const finish = () => {
+      setIsTyping(false);
+      setIsComplete(true);
+      onCompleteRef.current?.();
+    };
+
+    const tick = (now: number) => {
+      if (cancelled) return;
+      if (nextCharAt === null) nextCharAt = now;
+
+      let changed = false;
+
+      // Revela todos os caracteres cujo prazo já venceu neste frame — se a aba
+      // ficar em background e "atrasar", isso recupera de uma vez em vez de
+      // empilhar timers, que era a causa do drift/engasgo do modelo anterior.
+      while (now >= nextCharAt) {
+        const currentLine = lines[lineIndex];
+
+        if (charIndex >= currentLine.length) {
+          if (lineIndex >= lines.length - 1) {
+            if (changed) setDisplayedLines(buffer.slice());
+            finish();
+            return;
+          }
+          lineIndex += 1;
+          charIndex = 0;
+          nextCharAt += lineDelay;
+          continue;
+        }
+
+        charIndex += 1;
+        buffer[lineIndex] = currentLine.slice(0, charIndex);
+        changed = true;
+        nextCharAt += delayForNextChar(currentLine[charIndex - 1]);
+      }
+
+      if (changed) setDisplayedLines(buffer.slice());
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const startTimeoutId = setTimeout(() => {
+      if (cancelled) return;
       setIsTyping(true);
+      rafId = requestAnimationFrame(tick);
     }, startDelay);
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      cancelled = true;
+      clearTimeout(startTimeoutId);
+      if (rafId) cancelAnimationFrame(rafId);
     };
-  // We explicitly don't want to restart if lines change slightly unless it's a completely new command.
-  // Assuming this hook is mounted once per command output.
+  // Propositalmente não reinicia se `lines` mudar de referência sem `skip`
+  // mudar — este hook assume uma montagem por saída de comando.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skip]); 
-
-  // The actual typing trigger
-  useEffect(() => {
-    if (!isTyping || isComplete || isPaused) return;
-
-    const currentFullLine = lines[currentLineIndex];
-    if (currentFullLine === undefined) return;
-    
-    if (currentCharIndex >= currentFullLine.length) {
-      // Line finished
-      if (currentLineIndex >= lines.length - 1) {
-        // All lines finished
-        setIsTyping(false);
-        setIsComplete(true);
-        if (onCompleteRef.current) onCompleteRef.current();
-      } else {
-        // Move to next line
-        setIsPaused(true);
-        timeoutRef.current = setTimeout(() => {
-          setCurrentLineIndex(prev => prev + 1);
-          setCurrentCharIndex(0);
-          setIsPaused(false);
-        }, lineDelay);
-      }
-      return;
-    }
-
-    // Calculate delay for next char
-    let delay = baseSpeed + (Math.random() * humanVariance * 2 - humanVariance);
-    const lastChar = currentFullLine[currentCharIndex - 1];
-    if (lastChar && ['.', ',', ':', '!', '?'].includes(lastChar)) {
-      delay += punctuationDelay;
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      setDisplayedLines(prev => {
-        const newLines = [...prev];
-        newLines[currentLineIndex] = currentFullLine.substring(0, currentCharIndex + 1);
-        return newLines;
-      });
-      setCurrentCharIndex(prev => prev + 1);
-    }, delay);
-
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    }
-  }, [currentCharIndex, currentLineIndex, isTyping, isComplete, isPaused, baseSpeed, humanVariance, lineDelay, punctuationDelay, lines]);
+  }, [skip]);
 
   return {
     displayedLines,
     isTyping,
-    isComplete,
-    isPaused
+    isComplete
   };
 }

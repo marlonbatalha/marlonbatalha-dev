@@ -33,15 +33,23 @@ export default function TypewriterText({
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Escreve o scrollTop dentro de um rAF em vez de direto no efeito — o efeito
+  // já roda no máximo uma vez por frame (o hook agora também é rAF-driven),
+  // mas isso ainda garante que a leitura/escrita de layout fique alinhada ao
+  // ciclo de paint do navegador, evitando reflow forçado fora de hora.
   useEffect(() => {
-    if (isTyping && bottomRef.current) {
-      const container = bottomRef.current.closest('.overflow-y-auto');
+    if (!isTyping || !bottomRef.current) return;
+
+    const rafId = requestAnimationFrame(() => {
+      const container = bottomRef.current?.closest('.overflow-y-auto');
       if (container) {
-         container.scrollTop = container.scrollHeight;
+        container.scrollTop = container.scrollHeight;
       } else {
-         bottomRef.current.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+        bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'nearest' });
       }
-    }
+    });
+
+    return () => cancelAnimationFrame(rafId);
   }, [displayedLines, isTyping]);
 
   // Bloqueia a rolagem do usuário enquanto a digitação acontece. O autoscroll

@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import TetrisTitleAnim from './TetrisTitleAnim';
 import GlitchText from '../GlitchText';
+import TypewriterText from '../TypewriterText';
 
 const asciiArt = `███╗   ███╗ █████╗ ██████╗ ██╗      ██████╗ ███╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ ██╗     ██╗  ██╗ █████╗ 
 ████╗ ████║██╔══██╗██╔══██╗██║     ██╔═══██╗████╗  ██║    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██║     ██║  ██║██╔══██╗
@@ -12,6 +13,27 @@ const asciiArt = `███╗   ███╗ █████╗ █████
 
 export default function Whoami() {
   const { t } = useLanguage();
+  const role = t('Desenvolvedor Full Stack', 'Full Stack Developer');
+
+  const introLines = [
+    `${role} · Rio de Janeiro, BR`,
+    t('Digite "ajuda" para ver os comandos disponíveis.', 'Type "help" to see available commands.'),
+  ];
+
+  const renderIntroLine = (line: string, index: number) => {
+    if (index === 0) {
+      if (line.length <= role.length) {
+        return <span className="text-[#00cfff]">{line}</span>;
+      }
+      return (
+        <span className="text-[#888]">
+          <span className="text-[#00cfff]">{role}</span>
+          {line.slice(role.length)}
+        </span>
+      );
+    }
+    return <span className="text-[#00cfff] drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">{line}</span>;
+  };
 
   return (
     <div className="flex flex-col terminal-line font-mono">
@@ -28,16 +50,8 @@ export default function Whoami() {
 
       <div className="border-t border-[#1e1e1e] w-full max-w-[480px] my-3"></div>
 
-      <div className="flex flex-col gap-1">
-        <div className="text-[#888] text-sm md:text-base">
-          <span className="text-[#00cfff]">{t('Desenvolvedor Full Stack', 'Full Stack Developer')}</span>
-          <span className="mx-2">·</span>
-          <span>Rio de Janeiro, BR</span>
-        </div>
-        
-        <div className="mt-2 text-[#00cfff] text-sm md:text-base drop-shadow-[0_0_5px_rgba(0,207,255,0.4)]">
-          {t('Digite "ajuda" para ver os comandos disponíveis.', 'Type "help" to see available commands.')}
-        </div>
+      <div className="flex flex-col gap-1 text-sm md:text-base">
+        <TypewriterText lines={introLines} renderLine={renderIntroLine} lineDelay={150} />
       </div>
     </div>
   );
