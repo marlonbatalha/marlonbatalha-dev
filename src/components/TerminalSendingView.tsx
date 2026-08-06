@@ -67,7 +67,17 @@ export function TerminalSendingView({
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
-        }).then(res => res.ok ? true : false).catch(() => false);
+        }).then(async (res) => {
+            if (!res.ok) {
+                const body = await res.json().catch(() => null);
+                console.error('[contato] Falha ao enviar (status', res.status + '):', body?.error ?? '(sem detalhe)');
+                return false;
+            }
+            return true;
+        }).catch((err) => {
+            console.error('[contato] Erro de rede ao enviar formulário:', err);
+            return false;
+        });
     }
 
     STEPS.forEach((step, i) => {

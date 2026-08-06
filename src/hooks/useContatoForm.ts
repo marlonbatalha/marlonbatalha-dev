@@ -46,7 +46,8 @@ export function useContatoForm() {
             // Limpa o formulário após sucesso
             setFormData({ nome: "", email: "", mensagem: "" });
 
-        } catch {
+        } catch (err) {
+            console.error("[contato] Erro ao enviar formulário:", err);
             setStatus("erro");
         }
     }
