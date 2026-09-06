@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import TetrisTitleAnim from './TetrisTitleAnim';
-import GlitchText from '../GlitchText';
-import TypewriterText from '../TypewriterText';
+import GlitchText from '../ui/GlitchText';
+import TypewriterText from '../ui/TypewriterText';
 
 const asciiArt = `███╗   ███╗ █████╗ ██████╗ ██╗      ██████╗ ███╗   ██╗    ██████╗  █████╗ ████████╗ █████╗ ██╗     ██╗  ██╗ █████╗ 
 ████╗ ████║██╔══██╗██╔══██╗██║     ██╔═══██╗████╗  ██║    ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██║     ██║  ██║██╔══██╗

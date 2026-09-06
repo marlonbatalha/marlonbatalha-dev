@@ -20,7 +20,7 @@ export default function TypewriterText({
   cursorClassName = 'text-[#00ff88] animate-pulse',
   renderLine,
 }: TypewriterTextProps) {
-  const { displayedLines, isTyping, isComplete } = useTypewriter({
+  const { displayedLines, isComplete } = useTypewriter({
     lines,
     baseSpeed,
     humanVariance,
@@ -37,8 +37,14 @@ export default function TypewriterText({
   // já roda no máximo uma vez por frame (o hook agora também é rAF-driven),
   // mas isso ainda garante que a leitura/escrita de layout fique alinhada ao
   // ciclo de paint do navegador, evitando reflow forçado fora de hora.
+  // Não depende de `isTyping`: o "catch-up" do useTypewriter (ex.: aba volta
+  // de segundo plano) pode revelar os últimos caracteres E completar no mesmo
+  // frame/render, e com React 18 batching `isTyping` já chegaria `false`
+  // aqui — perdendo o scroll final. Rolar sempre que `displayedLines` mudar,
+  // independente do estado de digitação, cobre esse caso sem custo extra
+  // (depois de completo, `displayedLines` para de mudar).
   useEffect(() => {
-    if (!isTyping || !bottomRef.current) return;
+    if (!bottomRef.current) return;
 
     const rafId = requestAnimationFrame(() => {
       const container = bottomRef.current?.closest('.overflow-y-auto');
@@ -50,7 +56,7 @@ export default function TypewriterText({
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [displayedLines, isTyping]);
+  }, [displayedLines]);
 
   // Bloqueia a rolagem do usuário enquanto a digitação acontece. O autoscroll
   // acima continua funcionando (é programático); aqui só a entrada do usuário

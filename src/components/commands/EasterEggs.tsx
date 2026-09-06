@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import TypewriterText from '../TypewriterText';
-import GlitchText from '../GlitchText';
+import TypewriterText from '../ui/TypewriterText';
+import GlitchText from '../ui/GlitchText';
 
 export const Sudo = () => {
   const [showFlash, setShowFlash] = useState(true);

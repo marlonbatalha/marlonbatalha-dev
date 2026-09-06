@@ -1,12 +1,18 @@
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import TypewriterText from '../TypewriterText';
+import TypewriterText from '../ui/TypewriterText';
 
 const LINKS = [
   { label: 'Email', value: 'contato@marlonbatalha.dev', href: 'mailto:contato@marlonbatalha.dev', color: 'text-[#00ff88]', external: false },
   { label: 'LinkedIn', value: 'linkedin.com/in/marlonbatalha', href: 'https://linkedin.com/in/marlonbatalha', color: 'text-[#36a3d9]', external: true },
   { label: 'GitHub', value: 'github.com/marlonbatalha', href: 'https://github.com/marlonbatalha', color: 'text-[#e8e8e8]', external: true },
 ];
+
+type LineMeta =
+  | { type: 'header' }
+  | { type: 'intro' }
+  | { type: 'spacer' }
+  | { type: 'link'; link: typeof LINKS[number] };
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -16,42 +22,62 @@ export default function Contact() {
     'Feel free to send me an email or connect on social media.'
   );
 
-  const lines = [
-    t('Informações de Contato:', 'Contact Information:'),
-    '',
-    intro,
-    '',
-    ...LINKS.map((l) => `${l.label}: ${l.value}`),
-  ];
+  // Mesmo padrão de `lines` + `meta` do Projects.tsx: cada linha carrega seu
+  // próprio tipo, em vez de inferir o papel de uma linha por um índice mágico
+  // (ex.: `LINKS[index - 4]`) que quebra silenciosamente se alguém adicionar
+  // ou remover uma linha do prefixo fixo.
+  const lines: string[] = [];
+  const meta: LineMeta[] = [];
+
+  lines.push(t('Informações de Contato:', 'Contact Information:'));
+  meta.push({ type: 'header' });
+
+  lines.push('');
+  meta.push({ type: 'spacer' });
+
+  lines.push(intro);
+  meta.push({ type: 'intro' });
+
+  lines.push('');
+  meta.push({ type: 'spacer' });
+
+  LINKS.forEach((link) => {
+    lines.push(`${link.label}: ${link.value}`);
+    meta.push({ type: 'link', link });
+  });
 
   const renderLine = (line: string, index: number) => {
-    if (index === 0) {
+    const m = meta[index];
+    if (!m) return line;
+
+    if (m.type === 'header') {
       return <span className="text-[#00cfff] font-bold">{line}</span>;
     }
-    if (index === 2) {
+    if (m.type === 'intro') {
       return <span className="text-sm text-[#666]">{line}</span>;
     }
+    if (m.type === 'spacer') return line;
 
-    const link = LINKS[index - 4];
-    if (link) {
-      const prefix = `${link.label}: `;
-      const typedValue = line.length > prefix.length ? line.slice(prefix.length) : '';
-      return (
-        <span className="flex items-center gap-3 text-sm">
-          <span className="text-[#a78bfa] w-16 text-right shrink-0">{link.label}:</span>
-          <a
-            href={link.href}
-            target={link.external ? '_blank' : undefined}
-            rel={link.external ? 'noopener noreferrer' : undefined}
-            className={`${link.color} hover:underline`}
-          >
-            {typedValue}
-          </a>
-        </span>
-      );
-    }
-
-    return line;
+    // m.type === 'link' — rótulo e valor digitam juntos, caractere a
+    // caractere, em vez do rótulo aparecer pronto de uma vez.
+    const { link } = m;
+    const labelText = `${link.label}:`;
+    const prefix = `${labelText} `;
+    const visibleLabel = labelText.slice(0, line.length);
+    const typedValue = line.length > prefix.length ? line.slice(prefix.length) : '';
+    return (
+      <span className="flex items-center gap-3 text-sm">
+        <span className="text-[#a78bfa] w-16 text-right shrink-0">{visibleLabel}</span>
+        <a
+          href={link.href}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+          className={`${link.color} hover:underline`}
+        >
+          {typedValue}
+        </a>
+      </span>
+    );
   };
 
   return (

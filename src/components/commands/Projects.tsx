@@ -2,7 +2,7 @@ import React from "react";
 import { projects } from "@/data/projects";
 import type { Project } from "@/types/project";
 import { useLanguage } from '@/context/LanguageContext';
-import TypewriterText from '../TypewriterText';
+import TypewriterText from '../ui/TypewriterText';
 
 type LineMeta =
   | { type: 'header' }

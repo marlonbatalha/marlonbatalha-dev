@@ -12,6 +12,11 @@ export interface UseTypewriterOptions {
 }
 
 const PUNCTUATION = new Set(['.', ',', ':', '!', '?']);
+// Piso mínimo entre caracteres — sem isso, um `baseSpeed` <= `humanVariance`
+// (nenhum call site atual faz isso, mas é uma configuração válida da API)
+// pode zerar o delay e fazer o loop do tick() revelar o texto inteiro de
+// forma síncrona num único frame, em vez de animar.
+const MIN_CHAR_DELAY = 4;
 
 export function useTypewriter({
   lines,
@@ -27,6 +32,10 @@ export function useTypewriter({
   const [isTyping, setIsTyping] = useState(!skip);
   const [isComplete, setIsComplete] = useState(skip);
 
+  // Chave baseada no texto real das linhas (não na referência do array, que
+  // é recriada a cada render) — usada para saber se `lines` mudou de fato.
+  const linesKey = lines.join(' ');
+
   // A ref to keep track of the latest callbacks to avoid dependency cycles in useEffect
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -38,16 +47,34 @@ export function useTypewriter({
       setDisplayedLines([...lines]);
       setIsTyping(false);
       setIsComplete(true);
-      onCompleteRef.current?.();
-      return;
+      // onComplete é adiado e ligado a um cleanup por causa do StrictMode do
+      // React em dev: ele monta/limpa/monta o efeito de novo de propósito, e
+      // uma chamada síncrona aqui dispararia onComplete duas vezes para uma
+      // única montagem lógica. Adiando com setTimeout(0), a limpeza do
+      // primeiro disparo (síncrona, antes do timer estourar) cancela a
+      // chamada obsoleta, sobrando só a da segunda montagem.
+      let cancelled = false;
+      const id = setTimeout(() => {
+        if (!cancelled) onCompleteRef.current?.();
+      }, 0);
+      return () => {
+        cancelled = true;
+        clearTimeout(id);
+      };
     }
 
     if (!lines || lines.length === 0) {
       setDisplayedLines([]);
       setIsTyping(false);
       setIsComplete(true);
-      onCompleteRef.current?.();
-      return;
+      let cancelled = false;
+      const id = setTimeout(() => {
+        if (!cancelled) onCompleteRef.current?.();
+      }, 0);
+      return () => {
+        cancelled = true;
+        clearTimeout(id);
+      };
     }
 
     let cancelled = false;
@@ -68,7 +95,7 @@ export function useTypewriter({
     const delayForNextChar = (prevChar: string | undefined) => {
       const jitter = baseSpeed + (Math.random() * humanVariance * 2 - humanVariance);
       const punctuation = prevChar && PUNCTUATION.has(prevChar) ? punctuationDelay : 0;
-      return Math.max(jitter + punctuation, 0);
+      return Math.max(jitter + punctuation, MIN_CHAR_DELAY);
     };
 
     const finish = () => {
@@ -122,10 +149,12 @@ export function useTypewriter({
       clearTimeout(startTimeoutId);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  // Propositalmente não reinicia se `lines` mudar de referência sem `skip`
-  // mudar — este hook assume uma montagem por saída de comando.
+  // Reinicia quando o CONTEÚDO de `lines` muda de verdade (ex.: troca de
+  // idioma), não quando só a referência do array muda — `linesKey` compara
+  // pelo texto, então re-renders do componente pai (ex.: cada tecla digitada
+  // no terminal) não disparam a animação de novo, só uma mudança real.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skip]);
+  }, [skip, linesKey]);
 
   return {
     displayedLines,

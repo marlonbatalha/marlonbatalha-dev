@@ -20,8 +20,11 @@ export default function Ls() {
   return (
     <div className="flex gap-6 text-[#00cfff]">
       {items.map((item, i) => (
+        // key pelo índice, não pelo texto traduzido: `items` tem ordem e
+        // tamanho fixos, só o conteúdo muda com o idioma — usar o texto como
+        // key faria o React remontar (e replay do fade-in) tudo ao trocar BR/EN.
         <div
-          key={item}
+          key={i}
           className="flex items-center gap-2 font-bold terminal-line"
           style={{ animationDelay: `${i * 90}ms`, animationFillMode: 'both' }}
         >

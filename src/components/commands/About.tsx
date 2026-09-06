@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
-import TypewriterText from '../TypewriterText';
-import GlitchText from '../GlitchText';
+import TypewriterText from '../ui/TypewriterText';
+import GlitchText from '../ui/GlitchText';
 
 // Detecta se já hidratou no cliente (para o Portal) sem chamar setState dentro de um effect
 const emptySubscribe = () => () => {};

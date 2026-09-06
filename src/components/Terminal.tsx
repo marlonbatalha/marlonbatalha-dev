@@ -6,6 +6,7 @@ import { TerminalSendingView } from './TerminalSendingView'
 import { useLanguage } from '@/context/LanguageContext'
 
 type HistoryEntry = {
+  id: number
   cmd?: string
   out: React.ReactNode
 }
@@ -13,8 +14,18 @@ type HistoryEntry = {
 export default function Terminal() {
   const { language, setLanguage, t, mounted } = useLanguage()
 
+  // Contador de ids das entradas do histórico. Usar o índice do array como
+  // key (como era antes) faz o React reconciliar a mesma entrada em vez de
+  // remontá-la quando `clear`/Ctrl+L zera o histórico para 1 item só — o
+  // componente antigo (com seu estado interno de digitação já concluído)
+  // acaba sendo reaproveitado em vez de recriado do zero.
+  // Começa em 1 porque a entrada inicial abaixo já usa o id 0 — lido apenas
+  // em handlers/effects (nunca durante o render), como as regras dos hooks exigem.
+  const idCounterRef = useRef(1)
+  const nextId = () => idCounterRef.current++
+
   const [history, setHistory] = useState<HistoryEntry[]>([
-    { out: commandRegistry['whoami'](language) },
+    { id: 0, out: commandRegistry['whoami'](language) },
   ])
   const [input, setInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
@@ -62,13 +73,22 @@ export default function Terminal() {
 
     const isSpecialCommand = keyToUse === 'clear' || keyToUse === 'limpar';
 
-    if (!commandRegistry[keyToUse] && !isSpecialCommand) {
+    // Comandos com alias PT/EN (ajuda/help, sobre/about, projetos/projects,
+    // habilidades/skills, contato/contact, limpar/clear) só devem ser
+    // reconhecidos no idioma selecionado no momento — 'whoami' e 'ls' são
+    // iguais nos dois idiomas (sempre liberados), e os easter eggs (sudo,
+    // hack, coffee, neofetch) não têm alias e continuam funcionando em
+    // qualquer idioma.
+    const isAliasedCommand = getAvailableCommands('pt').includes(keyToUse) || getAvailableCommands('en').includes(keyToUse)
+    const isWrongLanguage = isAliasedCommand && !getAvailableCommands(language).includes(keyToUse)
+
+    if ((!commandRegistry[keyToUse] && !isSpecialCommand) || isWrongLanguage) {
       appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t(`Comando não encontrado: ${keyToUse}. Digite 'ajuda' para opções.`, `Command not found: ${keyToUse}. Type 'help' for options.`)}</span> })
       return
     }
 
     if (keyToUse === 'clear' || keyToUse === 'limpar') {
-      setHistory([{ out: commandRegistry['whoami'](language) }])
+      setHistory([{ id: nextId(), out: commandRegistry['whoami'](language) }])
       return
     }
 
@@ -96,8 +116,8 @@ export default function Terminal() {
     }
   }
 
-  function appendHistory(entry: HistoryEntry) {
-    setHistory((h) => [...h.filter(Boolean), entry])
+  function appendHistory(entry: Omit<HistoryEntry, 'id'>) {
+    setHistory((h) => [...h.filter(Boolean), { ...entry, id: nextId() }])
   }
 
   async function onSubmit(e?: React.FormEvent) {
@@ -191,7 +211,7 @@ export default function Terminal() {
       }
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
-      setHistory([{ out: commandRegistry['whoami'](language) }]);
+      setHistory([{ id: nextId(), out: commandRegistry['whoami'](language) }]);
       if (inputMode !== 'normal') {
         setInputMode('normal');
         setContactForm({ nome: '', email: '', mensagem: '' });
@@ -265,8 +285,8 @@ export default function Terminal() {
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 text-[#e8e8e8]" onClick={handleTerminalClick} aria-live="polite">
           <div className="flex flex-col gap-4 mb-4">
-            {history.map((entry, i) => (
-              <div key={i} className="flex flex-col gap-1.5">
+            {history.map((entry) => (
+              <div key={entry.id} className="flex flex-col gap-1.5">
                 {entry.cmd && (
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-sm md:text-base terminal-line">
                     <div className="flex items-center">
