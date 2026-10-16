@@ -7,6 +7,7 @@ const UNIT = 14;
 const BOARD_WIDTH = 7;
 const BOARD_HEIGHT = 7;
 
+/** Formatos de peça disponíveis (os nomes clássicos do Tetris). Cada um tem forma em `SHAPES` e cor em `COLORS`. */
 type ShapeType = 'I' | 'O' | 'T' | 'S' | 'L';
 
 const SHAPES: Record<ShapeType, { x: number; y: number }[]> = {
@@ -30,16 +31,27 @@ const FALL_DURATION = 0.8;
 const FADE_DURATION = 1.0;
 const GAP_BETWEEN_SEQUENCES = 1.0;
 
+/** Uma peça que cai e para numa posição do tabuleiro. */
 interface PieceDef {
+  /** Formato da peça. */
   shape: ShapeType;
+  /** Coluna onde fica o canto superior esquerdo da peça (0 a `BOARD_WIDTH - 1`). */
   col: number;
+  /** Linha onde a peça para (0 = topo, `BOARD_HEIGHT - 1` = fundo). */
   row: number;
-  offset: number; // tempo relativo ao INÍCIO da própria sequência, não do ciclo inteiro
+  /** Segundos após o INÍCIO da própria sequência (não do ciclo inteiro) em que a peça começa a cair. */
+  offset: number;
 }
 
+/**
+ * Uma "montagem": um grupo de peças que caem, ficam visíveis juntas e depois
+ * somem. As sequências de `SEQUENCES` tocam uma após a outra, em loop.
+ */
 interface Sequence {
+  /** Peças desta montagem, em qualquer ordem (o tempo é dado por `offset`). */
   pieces: PieceDef[];
-  holdBeforeFade: number; // segundos que a montagem fica parada e visível antes de sumir
+  /** Segundos que a montagem fica parada e visível, depois da última peça cair, antes de sumir. */
+  holdBeforeFade: number;
 }
 
 // ---- "Level design": adicione/remova sequências livremente aqui. ----

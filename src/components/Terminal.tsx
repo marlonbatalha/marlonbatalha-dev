@@ -4,12 +4,43 @@ import React, { useEffect, useRef, useState } from 'react'
 import { commandRegistry, getAvailableCommands } from './commands/registry'
 import { TerminalSendingView } from './TerminalSendingView'
 import { useLanguage } from '@/context/LanguageContext'
+import { CONTATO_LIMITES, type ContatoFormData } from '@/lib/contato'
 
+/**
+ * Um bloco do histórico do terminal: opcionalmente a linha de comando que o
+ * usuário digitou e, embaixo, a saída produzida.
+ */
 type HistoryEntry = {
+  /**
+   * Id único e crescente, usado como `key` do React. Não usar o índice do
+   * array: ao limpar o histórico o React reaproveitaria o componente antigo
+   * (com a digitação já concluída) em vez de montar um novo.
+   */
   id: number
+  /** Texto digitado, exibido após o prompt `~$`. Ausente em saídas "soltas" (ex.: perguntas do contato). */
   cmd?: string
+  /**
+   * Saída exibida abaixo do comando. Normalmente o componente do comando
+   * (ex.: `<About />`), que continua "vivo" no histórico — por isso reage à
+   * troca de idioma. `null` quando o comando não gera saída.
+   */
   out: React.ReactNode
 }
+
+/**
+ * Em que modo o input do terminal está — define o que acontece no Enter.
+ *
+ * - `normal`: executa comandos (`sobre`, `projetos`...).
+ * - `contact_name` → `contact_email` → `contact_message`: etapas do fluxo
+ *   iniciado pelo comando `contato`; cada Enter guarda um campo e avança.
+ * - `contact_submitting`: enviando a mensagem; o input some e a
+ *   `TerminalSendingView` é exibida até o envio terminar.
+ *
+ * `Ctrl+C` e `Ctrl+L` sempre voltam para `normal`.
+ */
+type InputMode = 'normal' | 'contact_name' | 'contact_email' | 'contact_message' | 'contact_submitting'
+
+const EMPTY_CONTACT_FORM: ContatoFormData = { nome: '', email: '', mensagem: '' }
 
 export default function Terminal() {
   const { language, setLanguage, t, mounted } = useLanguage()
@@ -31,10 +62,9 @@ export default function Terminal() {
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [commandHistory, setCommandHistory] = useState<string[]>([])
   const [cursorPos, setCursorPos] = useState(0)
-  
-  type InputMode = 'normal' | 'contact_name' | 'contact_email' | 'contact_message' | 'contact_submitting'
+
   const [inputMode, setInputMode] = useState<InputMode>('normal')
-  const [contactForm, setContactForm] = useState({ nome: '', email: '', mensagem: '' })
+  const [contactForm, setContactForm] = useState<ContatoFormData>(EMPTY_CONTACT_FORM)
   
   const inputRef = useRef<HTMLInputElement | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
@@ -126,8 +156,15 @@ export default function Terminal() {
     
     const cmd = input.trim()
 
+    // Mesmos limites da API — avisa já na etapa, em vez de só falhar no envio
+    const tooLong = (max: number) => {
+      if (cmd.length <= max) return false
+      appendHistory({ out: <div className="text-[#ff5f56] terminal-line">{t(`Texto muito longo (máx. ${max} caracteres). Tente novamente.`, `Text too long (max ${max} characters). Try again.`)}</div> })
+      return true
+    }
+
     if (inputMode === 'contact_name') {
-      if (!cmd) return;
+      if (!cmd || tooLong(CONTATO_LIMITES.nome)) return;
       setContactForm(prev => ({ ...prev, nome: cmd }))
       appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu nome:', 'What is your name:')} <span className="text-[#00cfff]">{cmd}</span></div> })
       appendHistory({ out: <div className="text-[#e8e8e8] terminal-line mt-2"><span className="text-[#00ff88]">?</span> {t('Qual é o seu email:', 'What is your email:')}</div> })
@@ -141,6 +178,7 @@ export default function Terminal() {
         appendHistory({ out: <div className="text-[#ff5f56] terminal-line">{t('Email inválido. Tente novamente.', 'Invalid email. Try again.')}</div> })
         return;
       }
+      if (tooLong(CONTATO_LIMITES.email)) return;
       setContactForm(prev => ({ ...prev, email: cmd }))
       appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu email:', 'What is your email:')} <span className="text-[#00cfff]">{cmd}</span></div> })
       appendHistory({ out: <div className="text-[#e8e8e8] terminal-line mt-2"><span className="text-[#00ff88]">?</span> {t('Digite sua mensagem:', 'Enter your message:')}</div> })
@@ -150,7 +188,7 @@ export default function Terminal() {
     }
 
     if (inputMode === 'contact_message') {
-      if (!cmd) return;
+      if (!cmd || tooLong(CONTATO_LIMITES.mensagem)) return;
       appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Mensagem:', 'Message:')} <span className="text-[#00cfff]">{cmd}</span></div> })
       
       setContactForm(prev => ({ ...prev, mensagem: cmd }))
@@ -169,13 +207,13 @@ export default function Terminal() {
     appendHistory({ out: <div className="text-[#00ff88] terminal-line font-bold mt-2">{t('[ TRANSMISSÃO COMPLETA ]', '[ TRANSMISSION COMPLETE ]')}</div> })
     appendHistory({ out: <div className="text-[#666] terminal-line text-sm mt-1">{t(`Olá ${name}, mensagem recebida. Responderei em breve.`, `Hello ${name}, message received. I'll reply soon.`)}</div> })
     setInputMode('normal')
-    setContactForm({ nome: '', email: '', mensagem: '' })
+    setContactForm(EMPTY_CONTACT_FORM)
   }
 
   const handleContactError = () => {
     appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
     setInputMode('normal')
-    setContactForm({ nome: '', email: '', mensagem: '' })
+    setContactForm(EMPTY_CONTACT_FORM)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -203,7 +241,7 @@ export default function Terminal() {
       if (inputMode !== 'normal') {
         appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Operação cancelada. Voltando ao terminal padrão...', '[✖] Operation cancelled. Returning to default terminal...')}</div> })
         setInputMode('normal');
-        setContactForm({ nome: '', email: '', mensagem: '' });
+        setContactForm(EMPTY_CONTACT_FORM);
         setInput('');
       } else {
         appendHistory({ cmd: input + '^C', out: null });
@@ -214,7 +252,7 @@ export default function Terminal() {
       setHistory([{ id: nextId(), out: commandRegistry['whoami'](language) }]);
       if (inputMode !== 'normal') {
         setInputMode('normal');
-        setContactForm({ nome: '', email: '', mensagem: '' });
+        setContactForm(EMPTY_CONTACT_FORM);
       }
       setInput('');
     } else if (e.key === 'Tab') {

@@ -1,8 +1,12 @@
 'use client'
 
-import React, { createContext, useContext, useCallback, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useCallback, useEffect, useSyncExternalStore } from 'react';
 
-type Language = 'pt' | 'en';
+/**
+ * Idiomas suportados pelo portfólio. O padrão é `pt`; a escolha do visitante
+ * fica salva no `localStorage` (chave `portfolio_lang`).
+ */
+export type Language = 'pt' | 'en';
 
 const STORAGE_KEY = 'portfolio_lang';
 const LANG_EVENT = 'portfolio_lang_change';
@@ -29,10 +33,24 @@ function getLanguageServerSnapshot(): Language {
 // Detecta hidratação no cliente sem chamar setState dentro de um effect
 const emptySubscribe = () => () => {};
 
+/** O que `useLanguage()` devolve. */
 interface LanguageContextType {
+  /** Idioma atual. No servidor e no primeiro render do cliente é sempre `pt`. */
   language: Language;
+  /** Troca o idioma, salva no `localStorage` e re-renderiza todos os componentes que usam o contexto. */
   setLanguage: (lang: Language) => void;
+  /**
+   * Escolhe o texto do idioma atual: `t('Olá', 'Hello')`.
+   *
+   * Recebe as duas versões no próprio call site em vez de usar chaves de
+   * tradução — simples para um site pequeno e com só dois idiomas.
+   */
   t: (ptText: string, enText: string) => string;
+  /**
+   * `true` depois que o componente hidratou no cliente. Antes disso o idioma
+   * salvo ainda não foi lido; use para esconder o conteúdo e evitar um
+   * "piscar" de PT para EN (o `Terminal` faz isso com a opacidade).
+   */
   mounted: boolean;
 }
 
@@ -41,6 +59,12 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const language = useSyncExternalStore(subscribeLanguage, getLanguageSnapshot, getLanguageServerSnapshot);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+
+  // Mantém o <html lang> em sincronia com o idioma escolhido (leitores de
+  // tela e tradutores do navegador usam esse atributo).
+  useEffect(() => {
+    document.documentElement.lang = language === 'pt' ? 'pt-BR' : 'en';
+  }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
     localStorage.setItem(STORAGE_KEY, lang);

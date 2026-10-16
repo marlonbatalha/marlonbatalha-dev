@@ -1,13 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
 
+/**
+ * Opções do efeito de digitação. Todos os tempos são em milissegundos.
+ *
+ * O texto é revelado caractere a caractere, com um pequeno atraso aleatório
+ * entre eles para parecer digitação humana.
+ */
 export interface UseTypewriterOptions {
+  /**
+   * Linhas a digitar, em ordem. Cada string vira uma linha na tela.
+   * Se o CONTEÚDO mudar (ex.: troca de idioma), a digitação recomeça do zero;
+   * um novo array com o mesmo texto não reinicia nada.
+   */
   lines: string[];
+  /** Atraso médio entre caracteres. Padrão: `30`. */
   baseSpeed?: number;
+  /** Variação aleatória (±) somada ao `baseSpeed` em cada caractere. Padrão: `15`. */
   humanVariance?: number;
+  /** Pausa ao terminar uma linha, antes de começar a próxima. Padrão: `200`. */
   lineDelay?: number;
+  /** Espera antes do primeiro caractere (simula o comando "processando"). Padrão: `150`. */
   startDelay?: number;
+  /** Pausa extra depois de `.` `,` `:` `!` `?`. Padrão: `100`. */
   punctuationDelay?: number;
+  /** Chamado uma vez, quando todas as linhas foram digitadas. */
   onComplete?: () => void;
+  /** Se `true`, mostra o texto completo na hora, sem animação. Padrão: `false`. */
   skip?: boolean;
 }
 
@@ -18,6 +36,17 @@ const PUNCTUATION = new Set(['.', ',', ':', '!', '?']);
 // forma síncrona num único frame, em vez de animar.
 const MIN_CHAR_DELAY = 4;
 
+/**
+ * Anima `lines` como se estivessem sendo digitadas.
+ *
+ * @returns
+ * - `displayedLines`: o texto revelado até agora, uma string por linha
+ *   (mesmo tamanho de `lines`; linhas ainda não alcançadas vêm vazias).
+ * - `isTyping`: `true` enquanto há caracteres sendo revelados.
+ * - `isComplete`: `true` quando tudo foi digitado (ou `skip` está ativo).
+ *
+ * Normalmente não é usado direto — veja o componente `TypewriterText`.
+ */
 export function useTypewriter({
   lines,
   baseSpeed = 30,

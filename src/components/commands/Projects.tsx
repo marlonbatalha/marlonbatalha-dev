@@ -4,6 +4,17 @@ import type { Project } from "@/types/project";
 import { useLanguage } from '@/context/LanguageContext';
 import TypewriterText from '../ui/TypewriterText';
 
+/**
+ * Papel de cada linha da saída de `projetos`. O `TypewriterText` só sabe
+ * digitar strings; este array paralelo (`meta[i]` descreve `lines[i]`) diz ao
+ * `renderLine` como estilizar cada uma depois.
+ *
+ * - `header`: título da seção ("Meus Projetos:").
+ * - `spacer`: linha em branco entre blocos.
+ * - `title` / `desc` / `tech`: nome, descrição e tecnologias de um projeto.
+ *   Carregam o `project` para que a linha `tech`, ao terminar de digitar,
+ *   renderize os badges de tecnologia e os links (repositório / ao vivo).
+ */
 type LineMeta =
   | { type: 'header' }
   | { type: 'spacer' }

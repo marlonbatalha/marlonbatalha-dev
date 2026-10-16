@@ -1,11 +1,35 @@
 import React, { useEffect, useRef } from 'react';
 import { useTypewriter, UseTypewriterOptions } from '@/hooks/useTypewriter';
 
+/**
+ * Props do `TypewriterText`: todas as opções de {@link UseTypewriterOptions}
+ * (linhas, velocidades, `skip`...) mais as de apresentação abaixo.
+ */
 interface TypewriterTextProps extends UseTypewriterOptions {
+  /** Classes extras do container (um flex em coluna com uma `div` por linha). */
   className?: string;
+  /** Classes do cursor `█` mostrado no fim da linha que está sendo digitada. */
   cursorClassName?: string;
+  /**
+   * Personaliza como cada linha é desenhada — para colorir partes do texto
+   * ou transformar trechos em links.
+   *
+   * @param line Texto revelado ATÉ AGORA (pode estar pela metade).
+   * @param index Posição da linha em `lines` — use para saber o papel da
+   *   linha (título, link...), como fazem os arrays `meta` de `Projects`,
+   *   `Contact` e do `Help`.
+   */
   renderLine?: (line: string, index: number) => React.ReactNode;
 }
+
+/**
+ * Exibe texto com efeito de digitação, cursor piscando e auto-scroll do
+ * terminal. Enquanto digita, bloqueia a rolagem manual do usuário (que
+ * brigaria com o auto-scroll).
+ *
+ * @example
+ * <TypewriterText lines={[t('Olá!', 'Hello!'), t('Bem-vindo.', 'Welcome.')]} />
+ */
 
 export default function TypewriterText({
   lines,

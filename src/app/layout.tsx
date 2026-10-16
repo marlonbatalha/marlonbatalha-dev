@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { siteDescription, siteName, siteTitle, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -18,8 +19,28 @@ const pressStart2P = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: "Marlon Batalha",
-  description: "Marlon Batalha",
+  metadataBase: new URL(siteUrl),
+  title: siteTitle,
+  description: siteDescription,
+  keywords: ["Marlon Batalha", "Desenvolvedor Full Stack", "Full Stack Developer", "Next.js", "React", "TypeScript", "Portfólio"],
+  authors: [{ name: siteName, url: siteUrl }],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    alternateLocale: ["en_US"],
+    url: "/",
+    siteName,
+    title: siteTitle,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
   icons: {
     icon: "/image/icon.svg",
   },
@@ -31,7 +52,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-br" className={`${jetbrainsMono.variable} ${pressStart2P.variable}`}>
+    <html lang="pt-BR"className={`${jetbrainsMono.variable} ${pressStart2P.variable}`}>
       <body className="bg-[#050505] text-[#666] font-mono min-h-screen antialiased selection:bg-[#00ff88] selection:text-black flex flex-col">
         <LanguageProvider>
           <Header />

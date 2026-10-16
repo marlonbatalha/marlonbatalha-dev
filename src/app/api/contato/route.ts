@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { CONTATO_LIMITES } from "@/lib/contato";
 
 // Armazena os IPs e a quantidade de requisições para Rate Limiting
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
@@ -47,24 +48,44 @@ export async function POST(req: NextRequest) {
     const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "unknown_ip";
 
     if (!checkRateLimit(ip)) {
-        console.warn(`[contato] Rate limit excedido para IP ${ip}`);
+        console.warn("[contato] Rate limit excedido");
         return NextResponse.json(
             { error: "Muitas tentativas. Tente novamente mais tarde." },
             { status: 429 }
         );
     }
 
-    const { nome, email, mensagem } = await req.json();
+    let body: unknown;
+    try {
+        body = await req.json();
+    } catch {
+        return NextResponse.json({ error: "Corpo da requisição inválido" }, { status: 400 });
+    }
 
-    if (!nome || !email || !mensagem) {
-        console.warn(`[contato] Campos faltando na requisição de IP ${ip}:`, { nome: !!nome, email: !!email, mensagem: !!mensagem });
+    const { nome, email, mensagem } = (body ?? {}) as Record<string, unknown>;
+
+    if (
+        typeof nome !== "string" || !nome.trim() ||
+        typeof email !== "string" || !email.trim() ||
+        typeof mensagem !== "string" || !mensagem.trim()
+    ) {
+        console.warn("[contato] Requisição com campos faltando ou inválidos");
         return NextResponse.json(
             { error: "Campos obrigatórios faltando" },
             { status: 400 }
         );
     }
 
-    console.log(`[contato] Nova requisição de IP ${ip} — nome: ${nome}, email: ${email}`);
+    if (
+        nome.length > CONTATO_LIMITES.nome ||
+        email.length > CONTATO_LIMITES.email ||
+        mensagem.length > CONTATO_LIMITES.mensagem
+    ) {
+        return NextResponse.json(
+            { error: "Um ou mais campos excedem o tamanho máximo" },
+            { status: 400 }
+        );
+    }
 
     try {
         const transporter = nodemailer.createTransport({
@@ -102,7 +123,7 @@ export async function POST(req: NextRequest) {
         <span style="color:#ff5f57; font-size:12px;">●</span>
         <span style="color:#febc2e; font-size:12px;"> ●</span>
         <span style="color:#00ff88; font-size:12px;"> ●</span>
-        <div style="margin-top:10px; color:#00cfff; font-size:14px; font-weight:bold;">marlonbatalha.dev — terminal</div>
+        <div style="margin-top:10px; color:#00cfff; font-size:14px; font-weight:bold;">marlonbatalha.com — terminal</div>
       </td>
     </tr>
     <tr>
@@ -128,7 +149,7 @@ export async function POST(req: NextRequest) {
     </tr>
     <tr>
       <td style="padding:14px 24px; background-color:#0a0a0a; border-top:1px solid #1e1e1e;">
-        <p style="color:#444; font-size:11px; margin:0;">Recebido em ${timestamp} · via marlonbatalha.dev</p>
+        <p style="color:#444; font-size:11px; margin:0;">Recebido em ${timestamp} · via marlonbatalha.com</p>
       </td>
     </tr>
   </table>
@@ -138,7 +159,7 @@ export async function POST(req: NextRequest) {
 
         const info = await transporter.sendMail(mailOptions);
 
-        console.log(`[contato] Email enviado com sucesso — messageId: ${info.messageId}, resposta SMTP: ${info.response}`);
+        console.log(`[contato] Email enviado — messageId: ${info.messageId}`);
 
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {

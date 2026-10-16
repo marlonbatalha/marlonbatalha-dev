@@ -2,12 +2,26 @@ import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import TypewriterText from '../ui/TypewriterText';
 
+/**
+ * Formas de contato exibidas pelo comando `contato`, na ordem da lista.
+ * `value` é o texto mostrado, `href` o destino do clique, `color` a classe
+ * Tailwind do texto e `external` abre em nova aba.
+ */
 const LINKS = [
   { label: 'Email', value: 'contato@marlonbatalha.dev', href: 'mailto:contato@marlonbatalha.dev', color: 'text-[#00ff88]', external: false },
   { label: 'LinkedIn', value: 'linkedin.com/in/marlonbatalha', href: 'https://linkedin.com/in/marlonbatalha', color: 'text-[#36a3d9]', external: true },
   { label: 'GitHub', value: 'github.com/marlonbatalha', href: 'https://github.com/marlonbatalha', color: 'text-[#e8e8e8]', external: true },
 ];
 
+/**
+ * Papel de cada linha da saída de `contato` (`meta[i]` descreve `lines[i]`;
+ * mesmo padrão de `Projects.tsx`).
+ *
+ * - `header`: título da seção.
+ * - `intro`: frase de introdução.
+ * - `spacer`: linha em branco.
+ * - `link`: um item de `LINKS`, renderizado como link clicável.
+ */
 type LineMeta =
   | { type: 'header' }
   | { type: 'intro' }

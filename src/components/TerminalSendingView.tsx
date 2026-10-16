@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import type { ContatoFormData } from '@/lib/contato';
 
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 const STEPS = [
@@ -14,21 +15,26 @@ const STEPS = [
 ];
 const PROGRESS_BAR_WIDTH = 24;
 
-interface ContactFormData {
-  nome: string;
-  email: string;
-  mensagem: string;
+interface TerminalSendingViewProps {
+    /** Dados já validados pelo terminal, enviados uma única vez ao montar. */
+    formData: ContatoFormData,
+    /** Chamado ao fim da animação se a API respondeu com sucesso (2xx). */
+    onSuccess: () => void,
+    /** Chamado ao fim da animação se a API falhou (status de erro ou falha de rede). */
+    onError: () => void
 }
 
+/**
+ * Tela de "transmissão" exibida enquanto a mensagem de contato é enviada:
+ * barra de progresso e passos animados (puramente visuais) em paralelo com
+ * o `fetch` real para `/api/contato`. O resultado só é revelado depois do
+ * último passo, mesmo que a API responda antes.
+ */
 export function TerminalSendingView({
     formData,
     onSuccess,
     onError
-}: {
-    formData: ContactFormData,
-    onSuccess: () => void,
-    onError: () => void
-}) {
+}: TerminalSendingViewProps) {
   const { language } = useLanguage();
   const lang = language as 'pt' | 'en';
   
