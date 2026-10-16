@@ -15,16 +15,16 @@ Portfólio pessoal de **Marlon Batalha**, desenvolvedor Full Stack, em formato d
 
 ## ⌨️ Comandos
 
-| PT            | EN         | Descrição                    |
-| ------------- | ---------- | ---------------------------- |
-| `ajuda`       | `help`     | Lista os comandos            |
-| `sobre`       | `about`    | Sobre mim                    |
-| `projetos`    | `projects` | Meus projetos                |
-| `habilidades` | `skills`   | Habilidades técnicas         |
-| `contato`     | `contact`  | Envia uma mensagem           |
-| `whoami`      | `whoami`   | Resumo rápido                |
-| `ls`          | `ls`       | Lista diretórios             |
-| `limpar`      | `clear`    | Limpa o terminal             |
+| PT                         | EN                    | Descrição                                          |
+| -------------------------- | --------------------- | -------------------------------------------------- |
+| `ajuda`                    | `help`                | Lista os comandos                                  |
+| `sobre`                    | `about`               | Sobre mim                                          |
+| `projetos`                 | `projects`            | Meus projetos                                      |
+| `habilidades`              | `skills`              | Habilidades técnicas                               |
+| `habilidades <tecnologia>` | `skills <technology>` | Onde usei a tecnologia (ex.: `habilidades oracle`) |
+| `contato`                  | `contact`             | Envia uma mensagem                                 |
+| `ls`                       | `ls`                  | Lista diretórios                                   |
+| `limpar`                   | `clear`               | Limpa o terminal                                   |
 
 ## 🛠️ Tecnologias
 

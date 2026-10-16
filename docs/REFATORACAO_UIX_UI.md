@@ -102,7 +102,7 @@ Definir classes utilitárias ou variáveis CSS para cada tipo de output, em vez 
 | -------------------- | --------------------------- | ------------------------------ |
 | Prompt — usuário     | `#00ff88` (verde brilhante) | Parte `marlon` do prompt       |
 | Prompt — host        | `#00cfff` (ciano)           | Parte `portfolio` do prompt    |
-| Prompt — path        | `#a78bfa` (roxo claro)      | Parte `~` do prompt            |
+| Prompt — path        | `#9ca3af` (cinza claro)     | Parte `~` do prompt            |
 | Comando digitado     | `#e8e8e8` (branco suave)    | Texto após o `$`               |
 | Output de informação | `#00cfff`                   | Cabeçalhos de seção            |
 | Output de sucesso    | `#00ff88`                   | Confirmações                   |
