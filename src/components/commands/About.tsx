@@ -81,11 +81,11 @@ export default function About() {
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-2xl text-[#e8e8e8] terminal-line">
-      <div className="flex items-center gap-4 border-b border-[#222] pb-4 mb-2 relative">
+    <div className="flex flex-col gap-4 max-w-2xl text-term-text terminal-line">
+      <div className="flex items-center gap-4 border-b border-term-line pb-4 mb-2 relative">
         <div 
           ref={imgRef}
-          className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.3)] shrink-0 cursor-pointer"
+          className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-term-green shadow-[0_0_15px_rgba(0,255,136,0.3)] shrink-0 cursor-pointer"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onClick={(e) => {
@@ -99,10 +99,10 @@ export default function About() {
             }
           }}
         >
-          <div className="absolute inset-0 bg-[#00ff88]/20 transition-colors duration-500 z-10 pointer-events-none mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-term-green/20 transition-colors duration-500 z-10 pointer-events-none mix-blend-overlay"></div>
           {/* Esconde a imagem original enquanto faz a transição para criar a ilusão de que ela "descolou" */}
           <Image 
-            src="/image/MARLON BATALHA - DESENVOLVIMENTO (1).jpeg" 
+            src="/image/marlon-batalha.jpeg" 
             alt="Marlon Batalha" 
             fill
             sizes="96px"
@@ -114,7 +114,7 @@ export default function About() {
         {/* Preload da versão em alta resolução para evitar travamentos no primeiro hover */}
         <div className="hidden">
           <Image 
-            src="/image/MARLON BATALHA - DESENVOLVIMENTO (1).jpeg" 
+            src="/image/marlon-batalha.jpeg" 
             alt="Marlon Batalha" 
             fill
             sizes="512px"
@@ -134,7 +134,7 @@ export default function About() {
           >
             {rect && (
               <div 
-                className={`absolute rounded-full overflow-hidden border-2 border-[#00ff88] shadow-[0_0_60px_rgba(0,255,136,0.5)] transition-all duration-500 ease-in-out ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute rounded-full overflow-hidden border-2 border-term-green shadow-[0_0_60px_rgba(0,255,136,0.5)] transition-all duration-500 ease-in-out ${isHovered ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   top: isHovered ? '50%' : `${rect.top}px`,
                   left: isHovered ? '50%' : `${rect.left}px`,
@@ -144,7 +144,7 @@ export default function About() {
                 }}
               >
                 <Image 
-                  src="/image/MARLON BATALHA - DESENVOLVIMENTO (1).jpeg" 
+                  src="/image/marlon-batalha.jpeg" 
                   alt="Marlon Batalha" 
                   fill
                   sizes="512px"
@@ -160,11 +160,11 @@ export default function About() {
           <GlitchText 
             as="h2" 
             text="Marlon Batalha" 
-            className="text-xl sm:text-2xl font-bold text-[#00cfff]" 
+            className="text-xl sm:text-2xl font-bold text-term-cyan" 
             intensity="subtle"
             triggerOnHover={true}
           />
-          <p className="text-[#00ff88] text-xs sm:text-sm">{t('Desenvolvedor Full Stack', 'Full Stack Developer')}</p>
+          <p className="text-term-green text-xs sm:text-sm">{t('Desenvolvedor Full Stack', 'Full Stack Developer')}</p>
         </div>
       </div>
       
@@ -173,8 +173,8 @@ export default function About() {
           className="gap-3"
           lines={[
             t(
-              'Olá! Sou um Desenvolvedor Full Stack com mais de 1 ano e 6 meses de experiência em desenvolvimento de software e mais de 2 anos na área de tecnologia. Iniciei minha jornada como Jovem Aprendiz e, com destaque, atuei em Suporte de TI e Segurança da Informação por mais de um ano. Essa vivência me proporcionou uma base forte em hardware, software, firewalls, protocolos de rede e mitigação de ataques (DDoS/DTOs).',
-              'Hello! I am a Full Stack Developer with over 1.5 years of software development experience and over 2 years in the tech field. I started my journey as an Apprentice (Jovem Aprendiz) and stood out, moving into IT Support and Information Security for over a year. This gave me a solid foundation in hardware, software, firewalls, network protocols, and attack mitigation (DDoS/DTOs).'
+              'Olá! Sou um Desenvolvedor Full Stack com mais de 1 ano e 6 meses de experiência em desenvolvimento de software e mais de 2 anos na área de tecnologia. Iniciei minha jornada como Jovem Aprendiz e, com destaque, atuei em Suporte de TI e Segurança da Informação por mais de um ano. Essa vivência me proporcionou uma base forte em hardware, software, firewalls, protocolos de rede e mitigação de ataques DDoS.',
+              'Hello! I am a Full Stack Developer with over 1.5 years of software development experience and over 2 years in the tech field. I started my journey as an Apprentice (Jovem Aprendiz) and stood out, moving into IT Support and Information Security for over a year. This gave me a solid foundation in hardware, software, firewalls, network protocols, and DDoS attack mitigation.'
             ),
             t(
               'Posteriormente, recebi a oportunidade de ingressar na equipe de desenvolvimento da mesma empresa. Atualmente, faço parte do ambiente completo de desenvolvimento dos sistemas que atuo: desde o frontend e backend, até DevOps, Cloud, Security e CI/CD (GitHub Actions). Tenho orgulho de ter criado sistemas robustos como CRMs, plataformas de gestão de leads e arquiteturas para disparo de e-mails em massa utilizando Azure Services (SQL, Email Communication Services, entre outros).',

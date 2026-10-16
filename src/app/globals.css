@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+/*
+ * Paleta do terminal — fonte única de verdade para as cores do site.
+ * Cada `--color-<nome>` vira utilitários do Tailwind: `text-term-green`,
+ * `bg-term-panel`, `border-term-line`... Para trocar uma cor no site
+ * inteiro, mude só aqui.
+ *
+ * Exceções que continuam com hex fixo, porque não passam pelo Tailwind:
+ * o HTML do email (api/contato), a imagem de preview (opengraph-image) e
+ * as cores das peças do Tetris (inline style).
+ */
+@theme {
+  /* Destaques */
+  --color-term-green: #00ff88;   /* prompt, sucesso, títulos */
+  --color-term-cyan: #00cfff;    /* informação, cabeçalhos de seção */
+  --color-term-red: #ff5f57;     /* erros */
+  --color-term-yellow: #ffeb3b;
+  --color-term-link: #36a3d9;    /* links externos */
+
+  /* Texto */
+  --color-term-text: #e8e8e8;    /* texto principal / comando digitado */
+  --color-term-muted: #9ca3af;   /* detalhes: ~ do prompt, labels, tecnologias */
+  --color-term-subtle: #888888;  /* texto secundário (título da janela, atalhos) */
+  --color-term-dim: #666666;     /* descrições, metadados */
+  --color-term-faint: #555555;   /* texto desativado */
+
+  /* Superfícies e bordas (do mais escuro ao mais claro) */
+  --color-term-bg: #050505;      /* fundo da página */
+  --color-term-window: #0d0d0d;  /* fundo da janela do terminal */
+  --color-term-panel: #111111;   /* barra de status, rodapé, badges */
+  --color-term-titlebar: #18181a;
+  --color-term-line: #222222;    /* bordas e divisores */
+  --color-term-line-strong: #333333; /* bordas de destaque (teclas, badges) */
+  --color-term-green-dim: #1e3a2a;   /* parte vazia da barra de progresso */
+
+  /* Botões da janela estilo macOS */
+  --color-dot-red: #ff5f57;
+  --color-dot-yellow: #febc2e;
+  --color-dot-green: #28c840;
+}
+
 @keyframes terminal-fade-in {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
@@ -33,15 +73,45 @@ body {
   font-family: var(--font-jetbrains-mono), monospace;
 }
 
-/* Scrollbar invisível em todo o site — a rolagem continua funcionando
-   normalmente via mouse/trackpad/touch, só o desenho da barra some */
-* {
-  scrollbar-width: none;       /* Firefox */
-  -ms-overflow-style: none;    /* Edge legado */
+/* Scrollbar fina no estilo do terminal: discreta, mas visível — sem ela,
+   quem usa mouse sem roda não tem como rolar e nada indica que há mais
+   conteúdo. `scrollbar-width`/`scrollbar-color` são o padrão (Firefox,
+   Chrome 121+, Edge); o ::-webkit-scrollbar cobre o Safari.
+   Fica em @layer base para que utilitários como `scrollbar-hide` consigam
+   sobrescrever — CSS fora de camada venceria sempre. */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-term-line-strong) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-term-line-strong);
+    border-radius: 3px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-term-dim);
+  }
 }
 
-*::-webkit-scrollbar {
-  display: none;               /* Chrome, Safari, Edge (Chromium) */
+/* Faixas que rolam na horizontal só por gesto (ex.: rodapé de atalhos)
+   continuam sem barra, para não cobrir o texto. */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Glitch Effect Variables */
@@ -78,13 +148,13 @@ body {
 }
 
 .glitch-text-wrapper::before {
-  color: #00cfff;
+  color: var(--color-term-cyan);
   z-index: -1;
   animation: glitch-anim-1 var(--glitch-duration) infinite linear alternate-reverse;
 }
 
 .glitch-text-wrapper::after {
-  color: #ff5f57;
+  color: var(--color-term-red);
   z-index: -2;
   animation: glitch-anim-2 var(--glitch-duration) infinite linear alternate-reverse;
 }

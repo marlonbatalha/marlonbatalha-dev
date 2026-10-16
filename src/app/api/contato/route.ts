@@ -131,11 +131,11 @@ export async function POST(req: NextRequest) {
         <p style="color:#666; font-size:13px; margin:0 0 18px;">$ contato --nova-mensagem</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
           <tr>
-            <td style="color:#a78bfa; font-size:13px; padding:4px 0; width:70px; vertical-align:top;">nome:</td>
+            <td style="color:#9ca3af; font-size:13px; padding:4px 0; width:70px; vertical-align:top;">nome:</td>
             <td style="color:#e8e8e8; font-size:14px; padding:4px 0;">${escapedNome}</td>
           </tr>
           <tr>
-            <td style="color:#a78bfa; font-size:13px; padding:4px 0; vertical-align:top;">email:</td>
+            <td style="color:#9ca3af; font-size:13px; padding:4px 0; vertical-align:top;">email:</td>
             <td style="color:#00cfff; font-size:14px; padding:4px 0;"><a href="mailto:${escapedEmail}" style="color:#00cfff; text-decoration:none;">${escapedEmail}</a></td>
           </tr>
         </table>

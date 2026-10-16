@@ -71,7 +71,20 @@ export function useTypewriter({
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  // `true` depois que o texto foi revelado por completo uma vez. A partir daí,
+  // se `lines` mudar (troca de idioma), o texto novo aparece na hora — sem
+  // redigitar o histórico inteiro, o que travaria a rolagem e puxaria a tela
+  // para o fim a cada troca.
+  const hasCompletedRef = useRef(false);
+
   useEffect(() => {
+    if (hasCompletedRef.current) {
+      setDisplayedLines([...lines]);
+      setIsTyping(false);
+      setIsComplete(true);
+      return;
+    }
+
     if (skip) {
       setDisplayedLines([...lines]);
       setIsTyping(false);
@@ -84,7 +97,12 @@ export function useTypewriter({
       // chamada obsoleta, sobrando só a da segunda montagem.
       let cancelled = false;
       const id = setTimeout(() => {
-        if (!cancelled) onCompleteRef.current?.();
+        if (cancelled) return;
+        // Marcado aqui (e não de forma síncrona) por causa do StrictMode: a
+        // segunda execução do efeito precisa repetir este ramo e agendar o
+        // onComplete de novo, já que o da primeira foi cancelado.
+        hasCompletedRef.current = true;
+        onCompleteRef.current?.();
       }, 0);
       return () => {
         cancelled = true;
@@ -98,7 +116,9 @@ export function useTypewriter({
       setIsComplete(true);
       let cancelled = false;
       const id = setTimeout(() => {
-        if (!cancelled) onCompleteRef.current?.();
+        if (cancelled) return;
+        hasCompletedRef.current = true; // ver comentário no ramo `skip`
+        onCompleteRef.current?.();
       }, 0);
       return () => {
         cancelled = true;
@@ -128,6 +148,7 @@ export function useTypewriter({
     };
 
     const finish = () => {
+      hasCompletedRef.current = true;
       setIsTyping(false);
       setIsComplete(true);
       onCompleteRef.current?.();

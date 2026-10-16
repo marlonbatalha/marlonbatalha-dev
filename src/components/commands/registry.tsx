@@ -3,7 +3,6 @@ import About from './About';
 import Projects from './Projects';
 import Skills from './Skills';
 import Contact from './Contact';
-import Whoami from './Whoami';
 import Ls from './ls';
 
 /**
@@ -15,8 +14,8 @@ import Ls from './ls';
  * bloqueados e funcionam em qualquer idioma.
  */
 export const getAvailableCommands = (lang: Language): string[] => {
-  if (lang === 'pt') return ['ajuda', 'sobre', 'projetos', 'habilidades', 'contato', 'whoami', 'ls', 'limpar'];
-  return ['help', 'about', 'projects', 'skills', 'contact', 'whoami', 'ls', 'clear'];
+  if (lang === 'pt') return ['ajuda', 'sobre', 'projetos', 'habilidades', 'contato', 'ls', 'limpar'];
+  return ['help', 'about', 'projects', 'skills', 'contact', 'ls', 'clear'];
 };
 
 import { useLanguage, type Language } from '@/context/LanguageContext';
@@ -63,7 +62,6 @@ const Help = () => {
     pushCommand(t('projetos', 'projects'), t('Veja meus projetos', 'See my projects'));
     pushCommand(t('habilidades', 'skills'), t('Minhas habilidades técnicas', 'My technical skills'));
     pushCommand(t('contato', 'contact'), t('Formas de me encontrar', 'Ways to find me'));
-    pushCommand('whoami', t('Resumo rápido', 'Quick summary'));
     pushCommand('ls', t('Lista diretórios', 'List directories'));
     pushCommand(t('limpar', 'clear'), t('Limpa o terminal', 'Clear the terminal'));
 
@@ -72,25 +70,26 @@ const Help = () => {
         if (!m) return line;
 
         if (m.type === 'header') {
-            return <span className="text-[#00cfff] font-bold">{line}</span>;
+            return <span className="text-term-cyan font-bold">{line}</span>;
         }
         if (m.type === 'spacer') return line;
 
-        // m.type === 'command'
-        if (line.length <= m.separatorIndex) {
-            return <span className="ml-2 text-[#00ff88]">{line}</span>;
-        }
-        const cmdPart = line.substring(0, m.separatorIndex);
-        const descPart = line.substring(m.separatorIndex);
+        // m.type === 'command' — duas colunas de verdade (grid) em vez de
+        // alinhar com espaços: em tela estreita a descrição quebra DENTRO da
+        // própria coluna, sem a continuação cair embaixo do nome do comando.
+        // `inline-grid` mantém o cursor do typewriter na mesma linha.
+        const cmdPart = line.substring(0, m.separatorIndex).trimEnd();
+        const descPart = line.length > m.separatorIndex ? line.substring(m.separatorIndex + 1) : '';
         return (
-            <span className="ml-2">
-                <span className="text-[#00ff88]">{cmdPart}</span>{descPart}
+            <span className="ml-2 inline-grid grid-cols-[12ch_1fr] gap-x-2 align-top">
+                <span className="text-term-green">{cmdPart}</span>
+                <span>{descPart}</span>
             </span>
         );
     };
 
     return (
-        <div className="terminal-line text-[#e8e8e8]">
+        <div className="terminal-line text-term-text">
             <TypewriterText lines={lines} renderLine={renderLine} lineDelay={100} />
         </div>
     );
@@ -99,7 +98,8 @@ const Help = () => {
 /**
  * Mapa `nome do comando → função que gera a saída`. O `Terminal` procura o
  * texto digitado (em minúsculas) aqui; se não achar, tenta só a primeira
- * palavra (ex.: `sudo qualquer-coisa` → `sudo`).
+ * palavra (ex.: `sudo qualquer-coisa` → `sudo`). O resto do texto chega como
+ * `args` (ex.: `habilidades oracle` → `args = "oracle"`).
  *
  * Cada comando com tradução aparece duas vezes (PT e EN) apontando para o
  * mesmo componente; o componente usa `useLanguage()` para escolher o texto.
@@ -108,7 +108,7 @@ const Help = () => {
  * Para adicionar um comando: registre aqui, inclua em `getAvailableCommands`
  * (se tiver versão PT/EN) e adicione uma linha no `Help` acima.
  */
-export const commandRegistry: Record<string, (lang: Language) => React.ReactNode> = {
+export const commandRegistry: Record<string, (lang: Language, args?: string) => React.ReactNode> = {
     // Help command
     help: () => <Help />,
     ajuda: () => <Help />,
@@ -122,15 +122,14 @@ export const commandRegistry: Record<string, (lang: Language) => React.ReactNode
     projetos: () => <Projects />,
 
     // Skills
-    skills: () => <Skills />,
-    habilidades: () => <Skills />,
+    skills: (_lang, args) => <Skills query={args} />,
+    habilidades: (_lang, args) => <Skills query={args} />,
 
     // Contact
     contact: () => <Contact />,
     contato: () => <Contact />,
 
     // Extras
-    whoami: () => <Whoami />,
     ls: () => <Ls />,
 
     // Easter Eggs (not listed in help)

@@ -21,7 +21,7 @@ const SHAPES: Record<ShapeType, { x: number; y: number }[]> = {
 const COLORS: Record<ShapeType, string> = {
   I: '#00cfff',
   O: '#ffeb3b',
-  T: '#a78bfa',
+  T: '#9ca3af',
   S: '#00ff88',
   L: '#ff5f57',
 };

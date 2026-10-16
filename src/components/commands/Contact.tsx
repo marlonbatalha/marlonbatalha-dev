@@ -8,9 +8,9 @@ import TypewriterText from '../ui/TypewriterText';
  * Tailwind do texto e `external` abre em nova aba.
  */
 const LINKS = [
-  { label: 'Email', value: 'contato@marlonbatalha.dev', href: 'mailto:contato@marlonbatalha.dev', color: 'text-[#00ff88]', external: false },
-  { label: 'LinkedIn', value: 'linkedin.com/in/marlonbatalha', href: 'https://linkedin.com/in/marlonbatalha', color: 'text-[#36a3d9]', external: true },
-  { label: 'GitHub', value: 'github.com/marlonbatalha', href: 'https://github.com/marlonbatalha', color: 'text-[#e8e8e8]', external: true },
+  { label: 'Email', value: 'marlonbatalha45@gmail.com', href: 'mailto:marlonbatalha45@gmail.com', color: 'text-term-green', external: false },
+  { label: 'LinkedIn', value: 'linkedin.com/in/marlon-batalha-3323a724b', href: 'https://www.linkedin.com/in/marlon-batalha-3323a724b', color: 'text-term-link', external: true },
+  { label: 'GitHub', value: 'github.com/marlonbatalha', href: 'https://github.com/marlonbatalha', color: 'text-term-text', external: true },
 ];
 
 /**
@@ -65,10 +65,10 @@ export default function Contact() {
     if (!m) return line;
 
     if (m.type === 'header') {
-      return <span className="text-[#00cfff] font-bold">{line}</span>;
+      return <span className="text-term-cyan font-bold">{line}</span>;
     }
     if (m.type === 'intro') {
-      return <span className="text-sm text-[#666]">{line}</span>;
+      return <span className="text-sm text-term-dim">{line}</span>;
     }
     if (m.type === 'spacer') return line;
 
@@ -81,7 +81,7 @@ export default function Contact() {
     const typedValue = line.length > prefix.length ? line.slice(prefix.length) : '';
     return (
       <span className="flex items-center gap-3 text-sm">
-        <span className="text-[#a78bfa] w-16 text-right shrink-0">{visibleLabel}</span>
+        <span className="text-term-muted w-20 text-right shrink-0">{visibleLabel}</span>
         <a
           href={link.href}
           target={link.external ? '_blank' : undefined}
@@ -95,7 +95,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="flex flex-col gap-2 max-w-xl text-[#e8e8e8] terminal-line">
+    <div className="flex flex-col gap-2 max-w-xl text-term-text terminal-line">
       <TypewriterText lines={lines} renderLine={renderLine} lineDelay={120} />
     </div>
   );

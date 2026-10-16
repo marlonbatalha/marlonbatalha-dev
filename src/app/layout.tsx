@@ -1,7 +1,5 @@
-import type { Metadata } from "next";
-import { JetBrains_Mono, Press_Start_2P } from "next/font/google";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import type { Metadata, Viewport } from "next";
+import { JetBrains_Mono } from "next/font/google";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { siteDescription, siteName, siteTitle, siteUrl } from "@/lib/site";
@@ -10,12 +8,6 @@ import "./globals.css";
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
-});
-
-const pressStart2P = Press_Start_2P({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-press-start",
 });
 
 export const metadata: Metadata = {
@@ -46,18 +38,23 @@ export const metadata: Metadata = {
   },
 };
 
+// Pinta a barra do navegador no celular com o fundo do site e avisa ao
+// navegador que a página é escura (scrollbars, inputs nativos etc.).
+export const viewport: Viewport = {
+  themeColor: "#050505",
+  colorScheme: "dark",
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR"className={`${jetbrainsMono.variable} ${pressStart2P.variable}`}>
-      <body className="bg-[#050505] text-[#666] font-mono min-h-screen antialiased selection:bg-[#00ff88] selection:text-black flex flex-col">
+    <html lang="pt-BR" className={jetbrainsMono.variable}>
+      <body className="bg-term-bg text-term-dim font-mono min-h-screen antialiased selection:bg-term-green selection:text-black flex flex-col">
         <LanguageProvider>
-          <Header />
           {children}
-          <Footer />
         </LanguageProvider>
         <SpeedInsights />
       </body>

@@ -20,8 +20,15 @@ export interface Project {
     descricaoEn?: string;
     /** Tecnologias usadas, exibidas separadas por ` · ` (ex.: `["React", "Node.js"]`). */
     tecnologias: string[];
-    /** URL do código-fonte (GitHub, etc.). Se omitida, o link não aparece. */
-    linkRepositorio?: string;
+    /**
+     * Repositórios do código-fonte, exibidos como links `[rótulo]`. Projetos
+     * com backend e frontend separados têm um item para cada
+     * (ex.: `{ rotulo: "Backend", url: "..." }`). Sem `rotulo`, o link aparece
+     * como "Repositório".
+     */
+    repositorios?: { rotulo?: string; url: string }[];
     /** URL do projeto publicado (site, loja de apps...). Se omitida, o link não aparece. */
     linkLive?: string;
+    /** Se `true`, mostra a tag "em desenvolvimento" ao lado do nome. */
+    emDesenvolvimento?: boolean;
 }

@@ -44,7 +44,7 @@ export default function OpengraphImage() {
                             <span style={{ color: "#00ff88" }}>marlon</span>
                             <span style={{ color: "#666" }}>@</span>
                             <span style={{ color: "#00cfff" }}>portfolio</span>
-                            <span style={{ color: "#a78bfa" }}>:~$</span>
+                            <span style={{ color: "#9ca3af" }}>:~$</span>
                             <span style={{ color: "#e8e8e8", marginLeft: 16 }}>whoami</span>
                         </div>
                         <div style={{ display: "flex", fontSize: 84, fontWeight: 700, color: "#00ff88" }}>

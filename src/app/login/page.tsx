@@ -28,38 +28,42 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black font-mono">
-            <div className="w-full max-w-md border border-gray-800 p-8 rounded bg-gray-950">
-                <h1 className="text-2xl font-bold text-green-500 mb-6 text-center">Admin Login</h1>
+        <div className="min-h-screen flex items-center justify-center bg-term-bg font-mono">
+            <div className="w-full max-w-md border border-term-line p-8 rounded bg-term-window">
+                <h1 className="text-2xl font-bold text-term-green mb-6 text-center">Admin Login</h1>
                 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className="text-sm text-gray-400 mb-1 block">Usuário</label>
+                        <label htmlFor="username" className="text-sm text-term-subtle mb-1 block">Usuário</label>
                         <input
+                            id="username"
                             type="text"
+                            autoComplete="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            className="w-full bg-black border border-gray-700 rounded p-2 text-green-500 focus:border-green-500 outline-none"
+                            className="w-full bg-term-bg border border-term-line-strong rounded p-2 text-term-green focus:border-term-green outline-hidden"
                         />
                     </div>
                     
                     <div>
-                        <label className="text-sm text-gray-400 mb-1 block">Senha</label>
+                        <label htmlFor="password" className="text-sm text-term-subtle mb-1 block">Senha</label>
                         <input
+                            id="password"
                             type="password"
+                            autoComplete="current-password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="w-full bg-black border border-gray-700 rounded p-2 text-green-500 focus:border-green-500 outline-none"
+                            className="w-full bg-term-bg border border-term-line-strong rounded p-2 text-term-green focus:border-term-green outline-hidden"
                         />
                     </div>
 
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {error && <p className="text-term-red text-sm">{error}</p>}
 
                     <button
                         type="submit"
-                        className="mt-4 w-full bg-green-600 text-black font-bold p-2 rounded hover:bg-green-500 transition-colors"
+                        className="mt-4 w-full bg-term-green text-black font-bold p-2 rounded hover:bg-term-green/85 transition-colors"
                     >
                         Acessar Terminal
                     </button>

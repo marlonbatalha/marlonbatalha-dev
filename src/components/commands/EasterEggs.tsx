@@ -20,7 +20,7 @@ export const Sudo = () => {
           as="div"
           text="[ERRO] Acesso negado. Este incidente será reportado."
           intensity="intense"
-          className="text-[#ff5f57] bg-[#330000] px-2 py-1 border border-[#ff5f57] inline-block"
+          className="text-term-red bg-[#330000] px-2 py-1 border border-term-red inline-block"
         />
       </div>
     </>
@@ -43,7 +43,7 @@ const RobotDance = () => {
     " q[-_-]p "
   ];
 
-  return <span className="text-[#00cfff] font-bold ml-1 inline-block whitespace-pre">{frames[frame]}</span>;
+  return <span className="text-term-cyan font-bold ml-1 inline-block whitespace-pre">{frames[frame]}</span>;
 };
 
 export const Hack = () => {
@@ -68,7 +68,7 @@ export const Hack = () => {
   };
   
   return (
-    <div className="terminal-line text-[#00ff88]">
+    <div className="terminal-line text-term-green">
       <TypewriterText lines={lines} lineDelay={500} baseSpeed={30} renderLine={renderLine} />
     </div>
   );
@@ -92,7 +92,7 @@ export const Coffee = () => {
   ];
   
   return (
-    <div className="terminal-line text-[#a78bfa] font-mono">
+    <div className="terminal-line text-term-muted font-mono">
       <TypewriterText lines={lines} baseSpeed={5} lineDelay={200} />
     </div>
   );
@@ -108,31 +108,31 @@ export const Neofetch = () => {
 
   return (
     <div className="terminal-line flex flex-col sm:flex-row gap-4 sm:gap-6 font-mono text-xs sm:text-sm mt-2">
-      <div className="text-[#00cfff] font-bold whitespace-pre leading-tight hidden sm:block">
+      <div className="text-term-cyan font-bold whitespace-pre leading-tight hidden sm:block">
         {logo}
       </div>
       <div className="flex flex-col justify-center w-full max-w-sm">
-        <div className="text-[#00cfff] font-bold mb-1">marlon@batalha-os</div>
-        <div className="border-b border-[#333] mb-2 w-full"></div>
+        <div className="text-term-cyan font-bold mb-1">marlon@batalha-os</div>
+        <div className="border-b border-term-line-strong mb-2 w-full"></div>
         <div className="grid grid-cols-[100px_1fr] gap-x-2 gap-y-1">
-            <span className="text-[#00cfff] font-bold">OS:</span> <span className="text-[#e8e8e8]">Web Portfolio 1.0</span>
-            <span className="text-[#00cfff] font-bold">Host:</span> <span className="text-[#e8e8e8]">Browser</span>
-            <span className="text-[#00cfff] font-bold">Kernel:</span> <span className="text-[#e8e8e8]">React 18</span>
-            <span className="text-[#00cfff] font-bold">Uptime:</span> <span className="text-[#e8e8e8]">∞</span>
-            <span className="text-[#00cfff] font-bold">Packages:</span> <span className="text-[#e8e8e8]">999 (npm)</span>
-            <span className="text-[#00cfff] font-bold">Shell:</span> <span className="text-[#e8e8e8]">bash</span>
-            <span className="text-[#00cfff] font-bold">Resolution:</span> <span className="text-[#e8e8e8]">Responsive</span>
-            <span className="text-[#00cfff] font-bold">DE:</span> <span className="text-[#e8e8e8]">Next.js</span>
-            <span className="text-[#00cfff] font-bold">WM:</span> <span className="text-[#e8e8e8]">Tailwind CSS</span>
+            <span className="text-term-cyan font-bold">OS:</span> <span className="text-term-text">Web Portfolio 1.0</span>
+            <span className="text-term-cyan font-bold">Host:</span> <span className="text-term-text">Browser</span>
+            <span className="text-term-cyan font-bold">Kernel:</span> <span className="text-term-text">React 19</span>
+            <span className="text-term-cyan font-bold">Uptime:</span> <span className="text-term-text">∞</span>
+            <span className="text-term-cyan font-bold">Packages:</span> <span className="text-term-text">999 (npm)</span>
+            <span className="text-term-cyan font-bold">Shell:</span> <span className="text-term-text">bash</span>
+            <span className="text-term-cyan font-bold">Resolution:</span> <span className="text-term-text">Responsive</span>
+            <span className="text-term-cyan font-bold">DE:</span> <span className="text-term-text">Next.js</span>
+            <span className="text-term-cyan font-bold">WM:</span> <span className="text-term-text">Tailwind CSS</span>
         </div>
         <div className="mt-3 flex gap-1.5">
-          <div className="w-4 h-4 bg-[#111]"></div>
-          <div className="w-4 h-4 bg-[#ff5f57]"></div>
-          <div className="w-4 h-4 bg-[#00ff88]"></div>
-          <div className="w-4 h-4 bg-[#ffeb3b]"></div>
-          <div className="w-4 h-4 bg-[#00cfff]"></div>
-          <div className="w-4 h-4 bg-[#a78bfa]"></div>
-          <div className="w-4 h-4 bg-[#e8e8e8]"></div>
+          <div className="w-4 h-4 bg-term-panel"></div>
+          <div className="w-4 h-4 bg-term-red"></div>
+          <div className="w-4 h-4 bg-term-green"></div>
+          <div className="w-4 h-4 bg-term-yellow"></div>
+          <div className="w-4 h-4 bg-term-cyan"></div>
+          <div className="w-4 h-4 bg-term-muted"></div>
+          <div className="w-4 h-4 bg-term-text"></div>
         </div>
       </div>
     </div>

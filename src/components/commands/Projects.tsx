@@ -55,15 +55,25 @@ export default function Projects() {
         if (!m) return line;
 
         if (m.type === 'header') {
-            return <span className="text-[#00cfff] font-bold">{line}</span>;
+            return <span className="text-term-cyan font-bold">{line}</span>;
         }
         if (m.type === 'spacer') return line;
 
         if (m.type === 'title') {
-            return <span className="text-lg font-semibold text-[#00ff88]">{line}</span>;
+            const isDone = line === lines[index];
+            return (
+                <span className="text-lg font-semibold text-term-green">
+                    {line}
+                    {isDone && m.project.emDesenvolvimento && (
+                        <span className="ml-3 text-xs font-normal text-term-muted">
+                            [{t('em desenvolvimento', 'in progress')}]
+                        </span>
+                    )}
+                </span>
+            );
         }
         if (m.type === 'desc') {
-            return <span className="text-sm text-[#666]">{line}</span>;
+            return <span className="text-sm text-term-dim">{line}</span>;
         }
 
         // m.type === 'tech' — os badges e links só aparecem quando a linha termina de digitar
@@ -71,22 +81,22 @@ export default function Projects() {
         const isDone = line === lines[index];
         return (
             <div className="flex flex-col gap-2 mt-1">
-                <span className="text-xs text-[#a78bfa]">{line}</span>
+                <span className="text-xs text-term-muted">{line}</span>
                 {isDone && (
                     <div className="flex flex-wrap items-center gap-2 terminal-line">
                         {project.tecnologias.map((tech) => (
-                            <span key={tech} className="bg-[#111] border border-[#333] text-[#a78bfa] text-xs px-2 py-1 rounded">
+                            <span key={tech} className="bg-term-panel border border-term-line-strong text-term-muted text-xs px-2 py-1 rounded">
                                 {tech}
                             </span>
                         ))}
                         <div className="flex gap-4 text-sm ml-2">
-                            {project.linkRepositorio && (
-                                <a href={project.linkRepositorio} target="_blank" rel="noopener noreferrer" className="text-[#36a3d9] hover:underline">
-                                    [{t('Repositório', 'Repository')}]
+                            {project.repositorios?.map((repo) => (
+                                <a key={repo.url} href={repo.url} target="_blank" rel="noopener noreferrer" className="text-term-link hover:underline">
+                                    [{repo.rotulo ?? t('Repositório', 'Repository')}]
                                 </a>
-                            )}
+                            ))}
                             {project.linkLive && (
-                                <a href={project.linkLive} target="_blank" rel="noopener noreferrer" className="text-[#00ff88] hover:underline">
+                                <a href={project.linkLive} target="_blank" rel="noopener noreferrer" className="text-term-green hover:underline">
                                     [{t('Ver ao vivo', 'Live demo')}]
                                 </a>
                             )}
@@ -98,7 +108,7 @@ export default function Projects() {
     };
 
     return (
-        <div className="flex flex-col gap-1 w-full max-w-2xl text-[#e8e8e8] terminal-line">
+        <div className="flex flex-col gap-1 w-full max-w-2xl text-term-text terminal-line">
             <TypewriterText lines={lines} renderLine={renderLine} baseSpeed={16} humanVariance={8} lineDelay={150} />
         </div>
     );

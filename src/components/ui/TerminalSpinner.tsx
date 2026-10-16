@@ -13,8 +13,8 @@ export const TerminalSpinner = ({ text = "ENVIANDO" }: { text?: string }) => {
   }, []);
 
   return (
-    <div className="text-[#a78bfa] font-mono flex gap-2 items-center my-2 terminal-line">
-      <span className="text-[#00ff88]">{SPINNER_FRAMES[frameIndex]}</span>
+    <div className="text-term-muted font-mono flex gap-2 items-center my-2 terminal-line">
+      <span className="text-term-green">{SPINNER_FRAMES[frameIndex]}</span>
       <span>[ {text}... ]</span>
     </div>
   );

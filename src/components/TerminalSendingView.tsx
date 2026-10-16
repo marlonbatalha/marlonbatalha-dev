@@ -125,14 +125,14 @@ export function TerminalSendingView({
 
   return (
     <div ref={containerRef} className="flex flex-col terminal-line mt-4 px-2">
-      <p className="text-[#00cfff] font-bold text-sm mb-3 tracking-wider">
+      <p className="text-term-cyan font-bold text-sm mb-3 tracking-wider">
         {lang === 'pt' ? '[ INICIANDO TRANSMISSÃO ]' : '[ INITIATING TRANSMISSION ]'}
       </p>
 
       <p className="font-mono text-xs tracking-wider mb-3">
-        <span className="text-[#00ff88]">{'█'.repeat(filled)}</span>
-        <span className="text-[#1e3a2a]">{'░'.repeat(empty)}</span>
-        <span className="text-[#00cfff] ml-1.5">{progress}%</span>
+        <span className="text-term-green">{'█'.repeat(filled)}</span>
+        <span className="text-term-green-dim">{'░'.repeat(empty)}</span>
+        <span className="text-term-cyan ml-1.5">{progress}%</span>
       </p>
 
       <div className="flex flex-col">
@@ -143,12 +143,12 @@ export function TerminalSendingView({
                 <div key={i} className="flex items-center gap-2.5 text-[13px] min-h-[20px] mb-1.5">
                 <span className="w-4 text-center shrink-0">
                     {done ? (
-                    <span className="text-[#00ff88]">✓</span>
+                    <span className="text-term-green">✓</span>
                     ) : active ? (
-                    <span className="text-[#00cfff]">{SPINNER_FRAMES[spinnerFrame]}</span>
+                    <span className="text-term-cyan">{SPINNER_FRAMES[spinnerFrame]}</span>
                     ) : null}
                 </span>
-                <span className={done ? 'text-[#333]' : active ? 'text-[#e8e8e8]' : 'text-[#333]'}>
+                <span className={done ? 'text-term-line-strong' : active ? 'text-term-text' : 'text-term-line-strong'}>
                     {lang === 'pt' ? step.text : step.textEn}
                 </span>
                 </div>

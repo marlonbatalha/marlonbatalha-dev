@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useTypewriter, UseTypewriterOptions } from '@/hooks/useTypewriter';
 
 /**
@@ -25,11 +25,29 @@ interface TypewriterTextProps extends UseTypewriterOptions {
 /**
  * Exibe texto com efeito de digitação, cursor piscando e auto-scroll do
  * terminal. Enquanto digita, bloqueia a rolagem manual do usuário (que
- * brigaria com o auto-scroll).
+ * brigaria com o auto-scroll) — por isso qualquer tecla ou toque na tela
+ * completa o texto na hora. Com `prefers-reduced-motion`, nem anima.
  *
  * @example
  * <TypewriterText lines={[t('Olá!', 'Hello!'), t('Bem-vindo.', 'Welcome.')]} />
  */
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+function subscribeReducedMotion(callback: () => void) {
+  const mql = window.matchMedia(REDUCED_MOTION_QUERY);
+  mql.addEventListener('change', callback);
+  return () => mql.removeEventListener('change', callback);
+}
+
+// No servidor (e na hidratação) assume que pode animar; o valor real do
+// navegador entra logo em seguida, sem divergir do HTML do servidor.
+const usePrefersReducedMotion = () =>
+  useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false,
+  );
 
 export default function TypewriterText({
   lines,
@@ -41,9 +59,14 @@ export default function TypewriterText({
   onComplete,
   skip,
   className = '',
-  cursorClassName = 'text-[#00ff88] animate-pulse',
+  cursorClassName = 'text-term-green animate-pulse',
   renderLine,
 }: TypewriterTextProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  // Vira `true` quando o usuário pede para pular (tecla/toque) e continua
+  // assim — se o texto mudar depois (troca de idioma), aparece completo.
+  const [skippedByUser, setSkippedByUser] = useState(false);
+
   const { displayedLines, isComplete } = useTypewriter({
     lines,
     baseSpeed,
@@ -52,23 +75,46 @@ export default function TypewriterText({
     startDelay,
     punctuationDelay,
     onComplete,
-    skip,
+    skip: skip || skippedByUser || prefersReducedMotion,
   });
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Escreve o scrollTop dentro de um rAF em vez de direto no efeito — o efeito
-  // já roda no máximo uma vez por frame (o hook agora também é rAF-driven),
-  // mas isso ainda garante que a leitura/escrita de layout fique alinhada ao
-  // ciclo de paint do navegador, evitando reflow forçado fora de hora.
-  // Não depende de `isTyping`: o "catch-up" do useTypewriter (ex.: aba volta
-  // de segundo plano) pode revelar os últimos caracteres E completar no mesmo
-  // frame/render, e com React 18 batching `isTyping` já chegaria `false`
-  // aqui — perdendo o scroll final. Rolar sempre que `displayedLines` mudar,
-  // independente do estado de digitação, cobre esse caso sem custo extra
-  // (depois de completo, `displayedLines` para de mudar).
+  // Enquanto digita, qualquer tecla ou toque completa o texto na hora.
+  // Teclas modificadoras sozinhas (Shift, Ctrl...) não contam, para não
+  // pular sem querer ao começar um atalho.
   useEffect(() => {
-    if (!bottomRef.current) return;
+    if (isComplete) return;
+
+    const skipNow = () => setSkippedByUser(true);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+      skipNow();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('pointerdown', skipNow);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('pointerdown', skipNow);
+    };
+  }, [isComplete]);
+
+  // Vira `true` depois da rolagem final da primeira revelação do texto.
+  const settledRef = useRef(false);
+
+  // Auto-scroll: acompanha o texto só enquanto ele aparece pela PRIMEIRA vez
+  // (resposta a um comando). Depois disso, mudanças de conteúdo — como a
+  // troca de idioma, que atualiza todo o histórico — não mexem na rolagem;
+  // senão a tela pularia para o fim mesmo com o usuário lendo lá em cima.
+  // (Quem estava no fim continua no fim: o `Terminal` cuida disso na troca.)
+  // Escreve o scrollTop dentro de um rAF para alinhar com o paint. Não
+  // depende de `isTyping`: o "catch-up" do useTypewriter (aba volta do
+  // segundo plano) ou o "pular" podem revelar o resto e completar no mesmo
+  // render — por isso a última rolagem acontece junto com `isComplete`.
+  useEffect(() => {
+    if (!bottomRef.current || settledRef.current) return;
+    if (isComplete) settledRef.current = true;
 
     const rafId = requestAnimationFrame(() => {
       const container = bottomRef.current?.closest('.overflow-y-auto');
@@ -80,7 +126,7 @@ export default function TypewriterText({
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [displayedLines]);
+  }, [displayedLines, isComplete]);
 
   // Bloqueia a rolagem do usuário enquanto a digitação acontece. O autoscroll
   // acima continua funcionando (é programático); aqui só a entrada do usuário

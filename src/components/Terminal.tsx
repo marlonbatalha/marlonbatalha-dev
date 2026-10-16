@@ -2,7 +2,9 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { commandRegistry, getAvailableCommands } from './commands/registry'
+import { TERMINAL_RUN_EVENT } from '@/lib/terminalEvents'
 import { TerminalSendingView } from './TerminalSendingView'
+import Whoami from './commands/Whoami'
 import { useLanguage } from '@/context/LanguageContext'
 import { CONTATO_LIMITES, type ContatoFormData } from '@/lib/contato'
 
@@ -42,6 +44,18 @@ type InputMode = 'normal' | 'contact_name' | 'contact_email' | 'contact_message'
 
 const EMPTY_CONTACT_FORM: ContatoFormData = { nome: '', email: '', mensagem: '' }
 
+/**
+ * Comandos da barra de toque do celular, como pares [PT, EN]. São só 5 para
+ * caberem lado a lado em 375px sem rolagem lateral escondida.
+ */
+const QUICK_COMMANDS: [string, string][] = [
+  ['sobre', 'about'],
+  ['projetos', 'projects'],
+  ['habilidades', 'skills'],
+  ['contato', 'contact'],
+  ['ajuda', 'help'],
+]
+
 export default function Terminal() {
   const { language, setLanguage, t, mounted } = useLanguage()
 
@@ -56,7 +70,7 @@ export default function Terminal() {
   const nextId = () => idCounterRef.current++
 
   const [history, setHistory] = useState<HistoryEntry[]>([
-    { id: 0, out: commandRegistry['whoami'](language) },
+    { id: 0, out: <Whoami /> },
   ])
   const [input, setInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
@@ -105,20 +119,20 @@ export default function Terminal() {
 
     // Comandos com alias PT/EN (ajuda/help, sobre/about, projetos/projects,
     // habilidades/skills, contato/contact, limpar/clear) só devem ser
-    // reconhecidos no idioma selecionado no momento — 'whoami' e 'ls' são
-    // iguais nos dois idiomas (sempre liberados), e os easter eggs (sudo,
+    // reconhecidos no idioma selecionado no momento — 'ls' é igual
+    // nos dois idiomas (sempre liberado), e os easter eggs (sudo,
     // hack, coffee, neofetch) não têm alias e continuam funcionando em
     // qualquer idioma.
     const isAliasedCommand = getAvailableCommands('pt').includes(keyToUse) || getAvailableCommands('en').includes(keyToUse)
     const isWrongLanguage = isAliasedCommand && !getAvailableCommands(language).includes(keyToUse)
 
     if ((!commandRegistry[keyToUse] && !isSpecialCommand) || isWrongLanguage) {
-      appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t(`Comando não encontrado: ${keyToUse}. Digite 'ajuda' para opções.`, `Command not found: ${keyToUse}. Type 'help' for options.`)}</span> })
+      appendHistory({ out: <span className="text-term-red terminal-line">{t(`Comando não encontrado: ${keyToUse}. Digite 'ajuda' para opções.`, `Command not found: ${keyToUse}. Type 'help' for options.`)}</span> })
       return
     }
 
     if (keyToUse === 'clear' || keyToUse === 'limpar') {
-      setHistory([{ id: nextId(), out: commandRegistry['whoami'](language) }])
+      setHistory([{ id: nextId(), out: <Whoami /> }])
       return
     }
 
@@ -128,21 +142,23 @@ export default function Terminal() {
         const result = await handler(language)
         if (result !== null) appendHistory({ out: result })
         
-        appendHistory({ out: <div className="text-[#a78bfa] font-bold terminal-line mt-4 mb-2">{t('[ INICIANDO MODO DE MENSAGEM DIRETA ]', '[ INITIATING DIRECT MESSAGE MODE ]')}</div> })
-        appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu nome:', 'What is your name:')}</div> })
+        appendHistory({ out: <div className="text-term-muted font-bold terminal-line mt-4 mb-2">{t('[ INICIANDO MODO DE MENSAGEM DIRETA ]', '[ INITIATING DIRECT MESSAGE MODE ]')}</div> })
+        appendHistory({ out: <div className="text-term-text terminal-line"><span className="text-term-green">?</span> {t('Qual é o seu nome:', 'What is your name:')}</div> })
         setInputMode('contact_name')
       } catch (err) {
-        appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t('Erro ao executar', 'Error executing')}: {(err as Error).message}</span> })
+        appendHistory({ out: <span className="text-term-red terminal-line">{t('Erro ao executar', 'Error executing')}: {(err as Error).message}</span> })
       }
       return
     }
 
     const handler = commandRegistry[keyToUse]
+    // O que vem depois do nome do comando (ex.: `habilidades oracle` → "oracle").
+    const args = keyToUse === lowerCmd ? '' : lowerCmd.slice(keyToUse.length).trim()
     try {
-      const result = await handler(language)
+      const result = await handler(language, args)
       if (result !== null) appendHistory({ out: result })
     } catch (err) {
-      appendHistory({ out: <span className="text-[#ff5f57] terminal-line">{t('Erro ao executar', 'Error executing')}: {(err as Error).message}</span> })
+      appendHistory({ out: <span className="text-term-red terminal-line">{t('Erro ao executar', 'Error executing')}: {(err as Error).message}</span> })
     }
   }
 
@@ -159,15 +175,15 @@ export default function Terminal() {
     // Mesmos limites da API — avisa já na etapa, em vez de só falhar no envio
     const tooLong = (max: number) => {
       if (cmd.length <= max) return false
-      appendHistory({ out: <div className="text-[#ff5f56] terminal-line">{t(`Texto muito longo (máx. ${max} caracteres). Tente novamente.`, `Text too long (max ${max} characters). Try again.`)}</div> })
+      appendHistory({ out: <div className="text-term-red terminal-line">{t(`Texto muito longo (máx. ${max} caracteres). Tente novamente.`, `Text too long (max ${max} characters). Try again.`)}</div> })
       return true
     }
 
     if (inputMode === 'contact_name') {
       if (!cmd || tooLong(CONTATO_LIMITES.nome)) return;
       setContactForm(prev => ({ ...prev, nome: cmd }))
-      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu nome:', 'What is your name:')} <span className="text-[#00cfff]">{cmd}</span></div> })
-      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line mt-2"><span className="text-[#00ff88]">?</span> {t('Qual é o seu email:', 'What is your email:')}</div> })
+      appendHistory({ out: <div className="text-term-text terminal-line"><span className="text-term-green">?</span> {t('Qual é o seu nome:', 'What is your name:')} <span className="text-term-cyan">{cmd}</span></div> })
+      appendHistory({ out: <div className="text-term-text terminal-line mt-2"><span className="text-term-green">?</span> {t('Qual é o seu email:', 'What is your email:')}</div> })
       setInputMode('contact_email')
       setInput('')
       return
@@ -175,13 +191,13 @@ export default function Terminal() {
 
     if (inputMode === 'contact_email') {
       if (!cmd || !cmd.includes('@')) {
-        appendHistory({ out: <div className="text-[#ff5f56] terminal-line">{t('Email inválido. Tente novamente.', 'Invalid email. Try again.')}</div> })
+        appendHistory({ out: <div className="text-term-red terminal-line">{t('Email inválido. Tente novamente.', 'Invalid email. Try again.')}</div> })
         return;
       }
       if (tooLong(CONTATO_LIMITES.email)) return;
       setContactForm(prev => ({ ...prev, email: cmd }))
-      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Qual é o seu email:', 'What is your email:')} <span className="text-[#00cfff]">{cmd}</span></div> })
-      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line mt-2"><span className="text-[#00ff88]">?</span> {t('Digite sua mensagem:', 'Enter your message:')}</div> })
+      appendHistory({ out: <div className="text-term-text terminal-line"><span className="text-term-green">?</span> {t('Qual é o seu email:', 'What is your email:')} <span className="text-term-cyan">{cmd}</span></div> })
+      appendHistory({ out: <div className="text-term-text terminal-line mt-2"><span className="text-term-green">?</span> {t('Digite sua mensagem:', 'Enter your message:')}</div> })
       setInputMode('contact_message')
       setInput('')
       return
@@ -189,7 +205,7 @@ export default function Terminal() {
 
     if (inputMode === 'contact_message') {
       if (!cmd || tooLong(CONTATO_LIMITES.mensagem)) return;
-      appendHistory({ out: <div className="text-[#e8e8e8] terminal-line"><span className="text-[#00ff88]">?</span> {t('Mensagem:', 'Message:')} <span className="text-[#00cfff]">{cmd}</span></div> })
+      appendHistory({ out: <div className="text-term-text terminal-line"><span className="text-term-green">?</span> {t('Mensagem:', 'Message:')} <span className="text-term-cyan">{cmd}</span></div> })
       
       setContactForm(prev => ({ ...prev, mensagem: cmd }))
       setInputMode('contact_submitting')
@@ -204,14 +220,14 @@ export default function Terminal() {
   }
 
   const handleContactSuccess = (name: string) => {
-    appendHistory({ out: <div className="text-[#00ff88] terminal-line font-bold mt-2">{t('[ TRANSMISSÃO COMPLETA ]', '[ TRANSMISSION COMPLETE ]')}</div> })
-    appendHistory({ out: <div className="text-[#666] terminal-line text-sm mt-1">{t(`Olá ${name}, mensagem recebida. Responderei em breve.`, `Hello ${name}, message received. I'll reply soon.`)}</div> })
+    appendHistory({ out: <div className="text-term-green terminal-line font-bold mt-2">{t('[ TRANSMISSÃO COMPLETA ]', '[ TRANSMISSION COMPLETE ]')}</div> })
+    appendHistory({ out: <div className="text-term-dim terminal-line text-sm mt-1">{t(`Olá ${name}, sua mensagem foi enviada. Responderei em breve.`, `Hello ${name}, your message has been received. I'll reply soon.`)}</div> })
     setInputMode('normal')
     setContactForm(EMPTY_CONTACT_FORM)
   }
 
   const handleContactError = () => {
-    appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
+    appendHistory({ out: <div className="text-term-red terminal-line mt-2">{t('[✖] Erro ao enviar mensagem. Voltando ao terminal padrão...', '[✖] Error sending message. Returning to default terminal...')}</div> })
     setInputMode('normal')
     setContactForm(EMPTY_CONTACT_FORM)
   }
@@ -239,7 +255,7 @@ export default function Terminal() {
     } else if (e.key === 'c' && e.ctrlKey) {
       e.preventDefault();
       if (inputMode !== 'normal') {
-        appendHistory({ out: <div className="text-[#ff5f56] terminal-line mt-2">{t('[✖] Operação cancelada. Voltando ao terminal padrão...', '[✖] Operation cancelled. Returning to default terminal...')}</div> })
+        appendHistory({ out: <div className="text-term-red terminal-line mt-2">{t('[✖] Operação cancelada. Voltando ao terminal padrão...', '[✖] Operation cancelled. Returning to default terminal...')}</div> })
         setInputMode('normal');
         setContactForm(EMPTY_CONTACT_FORM);
         setInput('');
@@ -249,7 +265,7 @@ export default function Terminal() {
       }
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
-      setHistory([{ id: nextId(), out: commandRegistry['whoami'](language) }]);
+      setHistory([{ id: nextId(), out: <Whoami /> }]);
       if (inputMode !== 'normal') {
         setInputMode('normal');
         setContactForm(EMPTY_CONTACT_FORM);
@@ -265,11 +281,60 @@ export default function Terminal() {
       } else if (matches.length > 1) {
         appendHistory({ 
           cmd: input, 
-          out: <div className="terminal-line text-[#00cfff]">{matches.join('  ')}</div> 
+          out: <div className="terminal-line text-term-cyan">{matches.join('  ')}</div> 
         });
       }
     }
   }
+
+  // Troca de idioma x rolagem: trocar o idioma atualiza o texto de TODO o
+  // histórico, mudando a altura do conteúdo. Quem estava lendo algo lá em
+  // cima fica onde está; quem estava no fim (como num terminal real) continua
+  // no fim. A posição é medida no pointerdown — antes de qualquer conteúdo
+  // mudar (inclusive o "pular digitação", que também reage ao toque).
+  const wasAtBottomRef = useRef(false)
+
+  const rememberIfAtBottom = () => {
+    const container = bottomRef.current?.parentElement
+    if (!container) return
+    // Folga de ~2 linhas: durante a digitação o texto pode ter crescido um
+    // pouco desde o último auto-scroll.
+    wasAtBottomRef.current = container.scrollHeight - container.scrollTop - container.clientHeight < 48
+  }
+
+  const keepAtBottomAfterLanguageChange = () => {
+    if (!wasAtBottomRef.current) return
+    wasAtBottomRef.current = false
+    // Espera os textos trocarem de idioma (cada TypewriterText atualiza no
+    // próprio efeito, um render depois) antes de rolar até o fim.
+    setTimeout(() => {
+      const container = bottomRef.current?.parentElement
+      if (container) container.scrollTop = container.scrollHeight
+    }, 50)
+  }
+
+  // Botões de comando do celular: executa como se tivesse digitado, mas sem
+  // focar o input (o que abriria o teclado e cobriria metade da tela).
+  const runQuickCommand = (cmd: string) => {
+    if (inputMode !== 'normal') return
+    runCommand(cmd)
+    setInput('')
+    setHistoryIndex(-1)
+  }
+
+  // Saídas de comandos podem pedir para executar outro comando (ex.: clicar
+  // numa tecnologia em `habilidades`) disparando `runTerminalCommand()`.
+  // O ref aponta sempre para a versão atual da função (com o idioma e o
+  // modo de input atuais), sem precisar re-registrar o listener.
+  const runQuickCommandRef = useRef(runQuickCommand)
+  useEffect(() => {
+    runQuickCommandRef.current = runQuickCommand
+  })
+  useEffect(() => {
+    const onRun = (e: Event) => runQuickCommandRef.current((e as CustomEvent<string>).detail)
+    window.addEventListener(TERMINAL_RUN_EVENT, onRun)
+    return () => window.removeEventListener(TERMINAL_RUN_EVENT, onRun)
+  }, [])
 
   const handleTerminalClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth <= 640) {
@@ -283,59 +348,63 @@ export default function Terminal() {
   return (
     <div className="flex-1 w-full flex items-center justify-center sm:p-4 md:p-8" role="application" aria-label="Terminal do portfólio">
       <div 
-        className={`w-full max-w-4xl h-[100dvh] sm:h-[85vh] max-h-none sm:max-h-[800px] bg-[#0d0d0d] sm:rounded-xl border-y sm:border border-[#222] shadow-none sm:shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out relative crt-overlay ${mounted ? 'opacity-100' : 'opacity-0'}`}
+        className={`w-full max-w-4xl h-[100dvh] sm:h-[85vh] max-h-none sm:max-h-[800px] bg-term-window sm:rounded-xl border-y sm:border border-term-line shadow-none sm:shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-opacity duration-300 ease-in-out relative crt-overlay ${mounted ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleTerminalClick}
       >
         
-        <div className="h-10 border-b border-[#222] flex items-center px-4 relative bg-[#18181a] shrink-0">
+        <div className="h-10 border-b border-term-line flex items-center px-4 relative bg-term-titlebar shrink-0">
           <div className="flex gap-2 absolute left-4">
-            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+            <div className="w-3 h-3 rounded-full bg-dot-red"></div>
+            <div className="w-3 h-3 rounded-full bg-dot-yellow"></div>
+            <div className="w-3 h-3 rounded-full bg-dot-green"></div>
           </div>
-          <div className="w-full text-center text-[#888] text-xs font-semibold tracking-wide">
+          <div className="w-full text-center text-term-subtle text-xs font-semibold tracking-wide">
             marlonbatalha@portfolio — bash
           </div>
         </div>
 
-        <div className="h-8 border-b border-[#222] flex items-center justify-between px-4 text-[11px] text-[#666] bg-[#111] uppercase tracking-wider shrink-0">
+        <div className="h-8 border-b border-term-line flex items-center justify-between px-4 text-xs text-term-dim bg-term-panel uppercase tracking-wider shrink-0">
           <div className="flex gap-6">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#27c93f] animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-dot-green animate-pulse"></span>
               online
             </div>
             <span>bash 5.2.0</span>
             <span>UTF-8</span>
           </div>
           
-          <div 
-            className="flex items-center gap-2 font-bold cursor-pointer hover:text-[#888] transition-colors z-50" 
+          <button
+            type="button"
+            aria-label={t('Mudar idioma para inglês', 'Switch language to Portuguese')}
+            className="flex items-center gap-2 font-bold cursor-pointer uppercase tracking-wider z-50"
+            onPointerDown={rememberIfAtBottom}
             onClick={(e) => {
               e.stopPropagation();
               setLanguage(language === 'pt' ? 'en' : 'pt');
+              keepAtBottomAfterLanguageChange();
             }}
           >
-            <span className={language === 'pt' ? 'text-[#00cfff]' : 'text-[#444]'}>BR</span>
-            <span className="text-[#333]">/</span>
-            <span className={language === 'en' ? 'text-[#00cfff]' : 'text-[#444]'}>EN</span>
-          </div>
+            <span className={language === 'pt' ? 'text-term-cyan' : 'text-term-faint'}>BR</span>
+            <span className="text-term-line-strong">/</span>
+            <span className={language === 'en' ? 'text-term-cyan' : 'text-term-faint'}>EN</span>
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 text-[#e8e8e8]" onClick={handleTerminalClick} aria-live="polite">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 text-term-text" onClick={handleTerminalClick} aria-live="polite">
           <div className="flex flex-col gap-4 mb-4">
             {history.map((entry) => (
               <div key={entry.id} className="flex flex-col gap-1.5">
                 {entry.cmd && (
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-sm md:text-base terminal-line">
                     <div className="flex items-center">
-                      <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
-                      <span className="text-[#666] hidden sm:inline">@</span>
-                      <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
-                      <span className="text-[#666] hidden sm:inline">:</span>
-                      <span className="text-[#a78bfa] font-bold text-[#00ff88] sm:text-[#a78bfa]">~</span>
-                      <span className="text-[#666]">$</span>
+                      <span className="text-term-green font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
+                      <span className="text-term-dim hidden sm:inline">@</span>
+                      <span className="text-term-cyan font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
+                      <span className="text-term-dim hidden sm:inline">:</span>
+                      <span className="font-bold text-term-green sm:text-term-muted">~</span>
+                      <span className="text-term-dim">$</span>
                     </div>
-                    <span className="text-[#e8e8e8]">{entry.cmd}</span>
+                    <span className="text-term-text">{entry.cmd}</span>
                   </div>
                 )}
                 <div className="pl-0 leading-relaxed text-sm md:text-base">{entry.out}</div>
@@ -354,21 +423,21 @@ export default function Terminal() {
               <div className="flex items-center shrink-0">
                 {inputMode === 'normal' ? (
                   <>
-                    <span className="text-[#00ff88] font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
-                    <span className="text-[#666] hidden sm:inline">@</span>
-                    <span className="text-[#00cfff] font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
-                    <span className="text-[#666] hidden sm:inline">:</span>
-                    <span className="text-[#a78bfa] font-bold text-[#00ff88] sm:text-[#a78bfa]">~</span>
-                    <span className="text-[#666]">$</span>
+                    <span className="text-term-green font-bold drop-shadow-[0_0_5px_rgba(0,255,136,0.4)] hidden sm:inline">marlonbatalha</span>
+                    <span className="text-term-dim hidden sm:inline">@</span>
+                    <span className="text-term-cyan font-bold drop-shadow-[0_0_5px_rgba(0,207,255,0.4)] hidden sm:inline">portfolio</span>
+                    <span className="text-term-dim hidden sm:inline">:</span>
+                    <span className="font-bold text-term-green sm:text-term-muted">~</span>
+                    <span className="text-term-dim">$</span>
                   </>
                 ) : (
-                  <span className="text-[#00ff88] font-bold">{'>'}</span>
+                  <span className="text-term-green font-bold">{'>'}</span>
                 )}
               </div>
               <div className="relative flex-1 flex items-center h-full min-h-[1.5em] overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none flex items-center whitespace-pre text-[#e8e8e8]">
+                <div className="absolute inset-0 pointer-events-none flex items-center whitespace-pre text-term-text">
                   <span>{input.slice(0, cursorPos)}</span>
-                  <span className="text-black bg-[#00ff88] animate-[pulse_1s_steps(2,start)_infinite] inline-flex justify-center items-center min-w-[0.6em] h-[1.2em]">
+                  <span className="text-black bg-term-green animate-[pulse_1s_steps(2,start)_infinite] inline-flex justify-center items-center min-w-[0.6em] h-[1.2em]">
                     {input.slice(cursorPos, cursorPos + 1) || ' '}
                   </span>
                   <span>{input.slice(cursorPos + 1)}</span>
@@ -399,12 +468,35 @@ export default function Terminal() {
           <div ref={bottomRef} />
         </div>
 
-        <div className="h-10 border-t border-[#222] flex items-center px-4 gap-3 sm:gap-4 md:gap-6 text-[10px] sm:text-[11px] md:text-xs text-[#555] bg-[#111] shrink-0 overflow-x-auto scrollbar-hide whitespace-nowrap">
-          <div className="flex items-center gap-1.5 sm:gap-2"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">↑↓</span> {t('histórico', 'history')}</div>
-          <div className="flex items-center gap-1.5 sm:gap-2"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">Tab</span> {t('completar', 'autocomplete')}</div>
-          <div className="flex items-center gap-1.5 sm:gap-2 hidden md:flex"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">Ctrl+L</span> {t('limpar', 'clear')}</div>
-          <div className="flex items-center gap-1.5 sm:gap-2"><span className="border border-[#333] px-1 sm:px-1.5 py-0.5 rounded text-[#888]">Enter</span> {t('executar', 'execute')}</div>
+        {/* Mouse/teclado: dicas de atalho. */}
+        <div className="h-10 border-t border-term-line flex pointer-coarse:hidden items-center px-4 gap-4 md:gap-6 text-xs text-term-faint bg-term-panel shrink-0 overflow-x-auto scrollbar-hide whitespace-nowrap">
+          <div className="flex items-center gap-2"><span className="border border-term-line-strong px-1.5 py-0.5 rounded text-term-subtle">↑↓</span> {t('histórico', 'history')}</div>
+          <div className="flex items-center gap-2"><span className="border border-term-line-strong px-1.5 py-0.5 rounded text-term-subtle">Tab</span> {t('completar', 'autocomplete')}</div>
+          <div className="hidden md:flex items-center gap-2"><span className="border border-term-line-strong px-1.5 py-0.5 rounded text-term-subtle">Ctrl+L</span> {t('limpar', 'clear')}</div>
+          <div className="flex items-center gap-2"><span className="border border-term-line-strong px-1.5 py-0.5 rounded text-term-subtle">Enter</span> {t('executar', 'execute')}</div>
         </div>
+
+        {/* Toque: atalhos de teclado não existem no celular — no lugar deles,
+            os comandos principais para tocar e executar direto. */}
+        <nav
+          aria-label={t('Comandos rápidos', 'Quick commands')}
+          className="hidden pointer-coarse:flex h-12 border-t border-term-line items-stretch px-1 text-xs bg-term-panel shrink-0 whitespace-nowrap"
+        >
+          {QUICK_COMMANDS.map(([pt, en]) => {
+            const cmd = t(pt, en)
+            return (
+              <button
+                key={pt}
+                type="button"
+                disabled={inputMode !== 'normal'}
+                onClick={() => runQuickCommand(cmd)}
+                className="flex-1 px-1 text-term-green disabled:text-term-faint"
+              >
+                {cmd}
+              </button>
+            )
+          })}
+        </nav>
 
       </div>
     </div>
